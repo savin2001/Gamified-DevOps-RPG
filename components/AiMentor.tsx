@@ -58,10 +58,10 @@ const AiMentor: React.FC<AiMentorProps> = ({ userStats }) => {
     };
 
     return (
-        <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-4 font-sans">
+        <div className="fixed bottom-20 md:bottom-6 right-6 z-50 flex flex-col items-end gap-4 font-sans">
             {/* Chat Window */}
             {isOpen && (
-                <div className="bg-devops-card border border-gray-700 shadow-2xl rounded-2xl w-[350px] sm:w-[400px] h-[500px] flex flex-col overflow-hidden animate-in slide-in-from-bottom-10 fade-in duration-300 origin-bottom-right">
+                <div className="bg-devops-card border border-gray-700 shadow-2xl rounded-2xl w-[90vw] sm:w-[350px] md:w-[400px] h-[60vh] sm:h-[500px] flex flex-col overflow-hidden animate-in slide-in-from-bottom-10 fade-in duration-300 origin-bottom-right mb-2">
                     {/* Header */}
                     <div className="p-4 border-b border-gray-700 bg-gray-800/80 backdrop-blur-sm flex justify-between items-center">
                         <div className="flex items-center gap-2">

@@ -9,12 +9,13 @@ import BlogHub from './components/BlogHub';
 import AiMentor from './components/AiMentor';
 import { UserStats, ActivityLog, ActivityType } from './types';
 import { getStoredStats, getActivityHistory, logActivity, resetProgress } from './services/gamificationService';
-import { Rocket, History, LayoutDashboard, Book, Beaker, Trash2, Code, Edit3 } from 'lucide-react';
+import { Rocket, History, LayoutDashboard, Book, Beaker, Trash2, Code, Edit3, Menu, X } from 'lucide-react';
 
 const App: React.FC = () => {
   const [stats, setStats] = useState<UserStats | null>(null);
   const [logs, setLogs] = useState<ActivityLog[]>([]);
   const [view, setView] = useState<'dashboard' | 'curriculum' | 'study' | 'labs' | 'projects' | 'blog'>('dashboard');
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   useEffect(() => {
     // Hydrate state from local storage on mount
@@ -35,6 +36,14 @@ const App: React.FC = () => {
       window.location.reload(); // Ensure all sub-components re-mount clean
     }
   };
+
+  const navItems = [
+    { id: 'dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+    { id: 'study', icon: Book, label: 'Study' },
+    { id: 'labs', icon: Beaker, label: 'Labs' },
+    { id: 'projects', icon: Code, label: 'Projects' },
+    { id: 'blog', icon: Edit3, label: 'Blog & Commit' },
+  ];
 
   if (!stats) return <div className="min-h-screen bg-devops-dark flex items-center justify-center text-white">Loading Quest...</div>;
 
@@ -61,7 +70,7 @@ const App: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-devops-dark text-slate-200 font-sans pb-12 relative">
+    <div className="min-h-screen bg-devops-dark text-slate-200 font-sans pb-24 md:pb-12 relative">
       {/* Header */}
       <nav className="border-b border-gray-800 bg-devops-dark/80 backdrop-blur-md sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -75,13 +84,7 @@ const App: React.FC = () => {
             
             {/* Desktop Nav */}
             <div className="hidden md:flex gap-2">
-                {[
-                    { id: 'dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-                    { id: 'study', icon: Book, label: 'Study' },
-                    { id: 'labs', icon: Beaker, label: 'Labs' },
-                    { id: 'projects', icon: Code, label: 'Projects' },
-                    { id: 'blog', icon: Edit3, label: 'Blog & Commit' },
-                ].map(navItem => (
+                {navItems.map(navItem => (
                     <button 
                         key={navItem.id}
                         onClick={() => setView(navItem.id as any)}
@@ -94,8 +97,44 @@ const App: React.FC = () => {
                     </button>
                 ))}
             </div>
+
+            {/* Mobile Menu Button */}
+            <div className="flex md:hidden">
+              <button
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                className="text-gray-400 hover:text-white p-2"
+                aria-label="Toggle menu"
+              >
+                {isMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              </button>
+            </div>
           </div>
         </div>
+
+        {/* Mobile Menu Dropdown (Top) */}
+        {isMenuOpen && (
+          <div className="md:hidden bg-devops-card border-b border-gray-700 shadow-xl absolute w-full left-0 z-50">
+            <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+              {navItems.map(navItem => (
+                <button
+                  key={navItem.id}
+                  onClick={() => {
+                    setView(navItem.id as any);
+                    setIsMenuOpen(false);
+                  }}
+                  className={`w-full flex items-center gap-3 px-3 py-3 rounded-md text-base font-medium transition-colors ${
+                    view === navItem.id 
+                      ? 'bg-gray-800 text-white border border-gray-700' 
+                      : 'text-gray-400 hover:text-white hover:bg-gray-800/50'
+                  }`}
+                >
+                  <navItem.icon className="w-5 h-5" />
+                  {navItem.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
       </nav>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -109,7 +148,6 @@ const App: React.FC = () => {
                 <div className="min-h-[500px]">
                     {view === 'dashboard' && (
                         <div className="space-y-8">
-                            {/* Replaced manual logger with Roadmap Summary or Recent Activity */}
                             <div className="bg-devops-card rounded-xl border border-gray-700 shadow-lg p-6">
                                 <div className="flex items-center gap-2 mb-4">
                                     <History className="w-5 h-5 text-gray-400" />
@@ -185,28 +223,30 @@ const App: React.FC = () => {
             </div>
         </div>
       </main>
-
-      {/* Floating AI Mentor - Now positioned outside the grid */}
-      <AiMentor userStats={stats} />
       
-      {/* Mobile Bottom Nav */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-devops-card border-t border-gray-800 p-2 flex justify-around z-50 pb-safe">
-        {[
-            { id: 'dashboard', icon: LayoutDashboard, label: 'Stats' },
-            { id: 'study', icon: Book, label: 'Study' },
-            { id: 'labs', icon: Beaker, label: 'Labs' },
-            { id: 'blog', icon: Edit3, label: 'Blog' },
-        ].map(navItem => (
-            <button 
-                key={navItem.id}
-                onClick={() => setView(navItem.id as any)}
-                className={`flex flex-col items-center p-2 rounded-lg ${view === navItem.id ? 'text-devops-accent' : 'text-gray-500'}`}
-            >
-                <navItem.icon className="w-5 h-5" />
-                <span className="text-[10px] mt-1">{navItem.label}</span>
-            </button>
-        ))}
+      {/* Mobile Bottom Navigation */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-devops-dark/95 backdrop-blur-lg border-t border-gray-800 z-40 pb-safe">
+        <div className="flex justify-around items-center h-16">
+            {navItems.map(navItem => (
+                <button
+                    key={navItem.id}
+                    onClick={() => {
+                        setView(navItem.id as any);
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }}
+                    className={`flex flex-col items-center justify-center w-full h-full space-y-1 ${
+                        view === navItem.id ? 'text-devops-accent' : 'text-gray-500 hover:text-gray-300'
+                    }`}
+                >
+                    <navItem.icon className={`w-5 h-5 ${view === navItem.id ? 'scale-110' : ''} transition-transform`} />
+                    <span className="text-[10px] font-medium">{navItem.label.split(' ')[0]}</span>
+                </button>
+            ))}
+        </div>
       </div>
+
+      {/* Floating AI Mentor */}
+      <AiMentor userStats={stats} />
     </div>
   );
 };
