@@ -1,0 +1,5 @@
+{
+  "name": "DevOps Quest",
+  "description": "A gamified DevOps learning companion that tracks XP, streaks, and curriculum progress with an AI mentor.",
+  "requestFramePermissions": []
+}
