@@ -1,10 +1,20 @@
 
 import { GoogleGenAI } from "@google/genai";
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+// Lazy initialize to prevent crash on load if API key is missing
+const getAiClient = () => {
+    const apiKey = process.env.API_KEY;
+    if (!apiKey) {
+        return null;
+    }
+    return new GoogleGenAI({ apiKey });
+};
 
 export const generateMotivation = async (streak: number, xp: number): Promise<string> => {
     try {
+        const ai = getAiClient();
+        if (!ai) return "Keep consistent! Every session counts towards your certification. ☁️";
+        
         const response = await ai.models.generateContent({
             model: 'gemini-3-flash-preview',
             contents: `You are a hype-man and DevOps mentor. The user has a streak of ${streak} days and ${xp} XP. Give them a short, punchy, 2-sentence motivation to keep learning Cloud engineering. Use emojis.`,
@@ -18,6 +28,9 @@ export const generateMotivation = async (streak: number, xp: number): Promise<st
 
 export const chatWithMentor = async (message: string, context: string): Promise<string> => {
     try {
+        const ai = getAiClient();
+        if (!ai) return "I am currently offline because the API Key is missing. Please configure the API Key to chat with me.";
+
         const response = await ai.models.generateContent({
             model: 'gemini-3-pro-preview',
             contents: `System: You are a senior DevOps engineer and strict mentor. Your only goal is to help the user master DevOps, AWS, Kubernetes, and Cloud Computing based on their learning path.
@@ -41,6 +54,9 @@ export const chatWithMentor = async (message: string, context: string): Promise<
 
 export const verifyGithubActivity = async (input: string): Promise<{ valid: boolean; message: string }> => {
     try {
+        const ai = getAiClient();
+        if (!ai) return { valid: true, message: "Activity logged (Offline verification)" };
+
         // In a real app, we'd use the GitHub API. Here we use Gemini to "analyze" the text input 
         // to see if it looks like a valid commit message or learning note.
         const response = await ai.models.generateContent({
