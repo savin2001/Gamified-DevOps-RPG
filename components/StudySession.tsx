@@ -637,6 +637,8 @@ ${resourcesSection}
         <div className="flex items-center gap-4">
             <FocusTimer 
                 ref={timerRef} 
+                initialMinutes={25}
+                enablePomodoro={true}
                 onPhaseComplete={handlePhaseComplete} 
                 onTick={handleTimerTick} 
             />

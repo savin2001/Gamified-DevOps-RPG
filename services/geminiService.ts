@@ -87,7 +87,7 @@ export interface QuizQuestion {
 export const generateQuiz = async (topic: string, week: number): Promise<QuizQuestion[]> => {
     try {
         const ai = getAiClient();
-        if (!ai) return [];
+        if (!ai) throw new Error("API_KEY_MISSING");
 
         const response = await ai.models.generateContent({
             model: 'gemini-3-flash-preview',
@@ -110,8 +110,9 @@ export const generateQuiz = async (topic: string, week: number): Promise<QuizQue
         });
         
         return JSON.parse(response.text || '[]');
-    } catch (error) {
+    } catch (error: any) {
+        if (error.message === "API_KEY_MISSING") throw error;
         console.error("Gemini Quiz Error:", error);
-        return [];
+        throw new Error("GENERATION_FAILED");
     }
 };

@@ -1,11 +1,11 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { LAB_DATA } from '../constants';
 import { getCompletedLabs, logActivity, saveLabCompletion, getLabSubmissions, saveLabSubmission } from '../services/gamificationService';
 import { ActivityType } from '../types';
 import { Lock, Unlock, Code, CheckCircle2, Terminal, Eye, BookOpen, AlertTriangle, Play, Box, Save, History } from 'lucide-react';
 import SuccessModal from './SuccessModal';
-import FocusTimer from './FocusTimer';
+import FocusTimer, { FocusTimerHandle } from './FocusTimer';
 
 interface ProjectHubProps {
   onActivityLogged: () => void;
@@ -18,11 +18,22 @@ const ProjectHub: React.FC<ProjectHubProps> = ({ onActivityLogged }) => {
   const [output, setOutput] = useState('');
   const [isReviewMode, setIsReviewMode] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const timerRef = useRef<FocusTimerHandle>(null);
 
   useEffect(() => {
     setCompletedItems(getCompletedLabs());
     setSavedSubmissions(getLabSubmissions());
   }, []);
+
+  // Auto-start timer when project initializes
+  useEffect(() => {
+    if (activeProjectId) {
+        timerRef.current?.reset();
+        timerRef.current?.start();
+    } else {
+        timerRef.current?.pause();
+    }
+  }, [activeProjectId]);
 
   useEffect(() => {
     if (activeProjectId) {
@@ -84,7 +95,11 @@ const ProjectHub: React.FC<ProjectHubProps> = ({ onActivityLogged }) => {
         </div>
         
         <div className="flex items-center gap-4">
-            <FocusTimer />
+            <FocusTimer 
+                ref={timerRef}
+                initialMinutes={180} 
+                enablePomodoro={false} 
+            />
             <button 
                 onClick={() => setIsReviewMode(!isReviewMode)}
                 className={`flex items-center gap-2 px-4 py-2 rounded-full border transition-all ${

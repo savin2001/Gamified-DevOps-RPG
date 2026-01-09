@@ -1,5 +1,5 @@
 
-import { UserStats, ActivityLog, ActivityType, NoteEntry, BlogPost, UserProfile } from '../types';
+import { UserStats, ActivityLog, ActivityType, NoteEntry, BlogPost, UserProfile, Achievement } from '../types';
 import { XP_VALUES, LEVEL_THRESHOLDS, INITIAL_STATS } from '../constants';
 import { getCurrentUser, getUsers } from './authService';
 
@@ -194,7 +194,11 @@ export const logActivity = (type: ActivityType, description: string, weekId?: nu
     streak: newStreak,
     lastActivityDate: new Date().toISOString(),
     sessionsCompleted: stats.sessionsCompleted + (type === ActivityType.STUDY_SESSION ? 1 : 0),
-    totalStudyHours: stats.totalStudyHours + (type === ActivityType.STUDY_SESSION ? 1.5 : (type === ActivityType.LAB_SESSION ? 3.0 : 0))
+    totalStudyHours: stats.totalStudyHours + (type === ActivityType.STUDY_SESSION ? 1.5 : (type === ActivityType.LAB_SESSION ? 3.0 : 0)),
+    // Fix: Explicitly track projects, labs, quizzes
+    labsCompleted: (stats.labsCompleted || 0) + (type === ActivityType.LAB_SESSION ? 1 : 0),
+    projectsCompleted: (stats.projectsCompleted || 0) + (type === ActivityType.PROJECT_WORK ? 1 : 0),
+    quizzesCompleted: (stats.quizzesCompleted || 0) + (type === ActivityType.QUIZ_COMPLETION ? 1 : 0),
   };
 
   const log: ActivityLog = {

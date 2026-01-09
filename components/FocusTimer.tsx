@@ -1,12 +1,14 @@
 
 import React, { useState, useEffect, useImperativeHandle, forwardRef } from 'react';
-import { Play, Pause, RotateCcw, Coffee, Zap } from 'lucide-react';
+import { Play, Pause, RotateCcw, Coffee, Zap, Timer } from 'lucide-react';
 
-const FOCUS_TIME = 25 * 60; // 25 minutes standard
-const BREAK_TIME = 5 * 60;  // 5 minutes
+const DEFAULT_FOCUS_TIME = 25 * 60; 
+const BREAK_TIME = 5 * 60; 
 
 interface FocusTimerProps {
     autoStart?: boolean;
+    initialMinutes?: number;
+    enablePomodoro?: boolean;
     onPhaseComplete?: (completedMode: 'focus' | 'break') => void;
     onTick?: (totalSecondsElapsed: number) => void;
 }
@@ -18,35 +20,41 @@ export interface FocusTimerHandle {
     setMode: (mode: 'focus' | 'break') => void;
 }
 
-const FocusTimer = forwardRef<FocusTimerHandle, FocusTimerProps>(({ autoStart = false, onPhaseComplete, onTick }, ref) => {
-    const [timeLeft, setTimeLeft] = useState(FOCUS_TIME);
+const FocusTimer = forwardRef<FocusTimerHandle, FocusTimerProps>(({ 
+    autoStart = false, 
+    initialMinutes = 25, 
+    enablePomodoro = true,
+    onPhaseComplete, 
+    onTick 
+}, ref) => {
+    const durationSeconds = initialMinutes * 60;
+    const [timeLeft, setTimeLeft] = useState(durationSeconds);
     const [isActive, setIsActive] = useState(false);
     const [mode, setMode] = useState<'focus' | 'break'>('focus');
     const [totalSecondsElapsed, setTotalSecondsElapsed] = useState(0);
 
-    // Expose methods to parent
+    // Re-initialize if props change
+    useEffect(() => {
+        setTimeLeft(durationSeconds);
+        setIsActive(autoStart);
+        setMode('focus');
+    }, [initialMinutes, autoStart]);
+
     useImperativeHandle(ref, () => ({
         start: () => setIsActive(true),
         pause: () => setIsActive(false),
         reset: () => {
             setIsActive(false);
-            setTimeLeft(FOCUS_TIME);
+            setTimeLeft(durationSeconds);
             setMode('focus');
             setTotalSecondsElapsed(0);
         },
         setMode: (newMode: 'focus' | 'break') => {
             setMode(newMode);
-            setTimeLeft(newMode === 'focus' ? FOCUS_TIME : BREAK_TIME);
-            // Automatically start the new mode if we are switching
+            setTimeLeft(newMode === 'focus' ? durationSeconds : BREAK_TIME);
             setIsActive(true);
         }
     }));
-
-    useEffect(() => {
-        if (autoStart) {
-            setIsActive(true);
-        }
-    }, [autoStart]);
 
     useEffect(() => {
         let interval: number | undefined;
@@ -55,7 +63,7 @@ const FocusTimer = forwardRef<FocusTimerHandle, FocusTimerProps>(({ autoStart = 
             interval = window.setInterval(() => {
                 setTimeLeft((prev) => prev - 1);
                 
-                // Only track "study" time for the total duration log, not break time
+                // Only track "work" time for the total stats, not break time
                 if (mode === 'focus') {
                     setTotalSecondsElapsed(prev => {
                         const newVal = prev + 1;
@@ -69,6 +77,7 @@ const FocusTimer = forwardRef<FocusTimerHandle, FocusTimerProps>(({ autoStart = 
             if (onPhaseComplete) {
                 onPhaseComplete(mode);
             }
+            // Auto-switch logic could go here, but handled by parent in current architecture
         }
 
         return () => clearInterval(interval);
@@ -78,38 +87,54 @@ const FocusTimer = forwardRef<FocusTimerHandle, FocusTimerProps>(({ autoStart = 
     
     const resetTimer = () => {
         setIsActive(false);
-        setTimeLeft(mode === 'focus' ? FOCUS_TIME : BREAK_TIME);
+        setTimeLeft(mode === 'focus' ? durationSeconds : BREAK_TIME);
     };
 
     const switchMode = () => {
+        if (!enablePomodoro) return; // Disable mode switching for continuous timers
         const newMode = mode === 'focus' ? 'break' : 'focus';
         setMode(newMode);
         setIsActive(false);
-        setTimeLeft(newMode === 'focus' ? FOCUS_TIME : BREAK_TIME);
+        setTimeLeft(newMode === 'focus' ? durationSeconds : BREAK_TIME);
     };
 
     const formatTime = (seconds: number) => {
-        const mins = Math.floor(seconds / 60);
-        const secs = seconds % 60;
-        return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        const h = Math.floor(seconds / 3600);
+        const m = Math.floor((seconds % 3600) / 60);
+        const s = seconds % 60;
+
+        if (h > 0) {
+            return `${h}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+        }
+        return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
     };
 
+    const totalDuration = mode === 'focus' ? durationSeconds : BREAK_TIME;
+    const progress = ((totalDuration - timeLeft) / totalDuration) * 100;
+
     return (
-        <div className="flex items-center gap-4 bg-black/40 backdrop-blur-md px-4 py-2 rounded-full border border-white/10 shadow-lg relative overflow-hidden group">
+        <div className="flex items-center gap-4 bg-black/40 backdrop-blur-md px-4 py-2 rounded-full border border-white/10 shadow-lg relative overflow-hidden group min-w-[180px] justify-between">
             {/* Progress Background */}
             <div 
                 className={`absolute bottom-0 left-0 h-1 transition-all duration-1000 ${mode === 'focus' ? 'bg-blue-500' : 'bg-green-500'}`}
-                style={{ width: `${(( (mode === 'focus' ? FOCUS_TIME : BREAK_TIME) - timeLeft) / (mode === 'focus' ? FOCUS_TIME : BREAK_TIME)) * 100}%` }}
+                style={{ width: `${progress}%` }}
             ></div>
 
-            <div className="flex flex-col items-center z-10">
-                 <div className={`text-2xl font-mono font-bold leading-none tabular-nums ${timeLeft < 60 ? 'text-red-400 animate-pulse' : 'text-white'}`}>
+            <div className="flex flex-col items-center z-10 pl-2">
+                 <div className={`text-xl font-mono font-bold leading-none tabular-nums ${timeLeft < 60 ? 'text-red-400 animate-pulse' : 'text-white'}`}>
                     {formatTime(timeLeft)}
                  </div>
-                 <button className="flex gap-1 items-center mt-1 cursor-pointer hover:text-white transition-colors text-xs text-gray-500 uppercase font-bold tracking-wider" onClick={switchMode}>
-                    {mode === 'focus' ? <Zap className="w-3 h-3 text-blue-400" /> : <Coffee className="w-3 h-3 text-green-400" />}
-                    {mode === 'focus' ? 'Focus' : 'Break'}
-                 </button>
+                 {enablePomodoro ? (
+                     <button className="flex gap-1 items-center mt-1 cursor-pointer hover:text-white transition-colors text-[10px] text-gray-500 uppercase font-bold tracking-wider" onClick={switchMode}>
+                        {mode === 'focus' ? <Zap className="w-3 h-3 text-blue-400" /> : <Coffee className="w-3 h-3 text-green-400" />}
+                        {mode === 'focus' ? 'Focus' : 'Break'}
+                     </button>
+                 ) : (
+                     <div className="flex gap-1 items-center mt-1 text-[10px] text-gray-500 uppercase font-bold tracking-wider">
+                        <Timer className="w-3 h-3 text-blue-400" />
+                        Session
+                     </div>
+                 )}
             </div>
 
             <div className="h-8 w-px bg-white/10 z-10"></div>

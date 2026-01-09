@@ -1,8 +1,8 @@
 
 import React from 'react';
 import { UserStats } from '../types';
-import { LEVEL_THRESHOLDS, LEVEL_TITLES } from '../constants';
-import { Trophy, BookOpen, Flame, Activity } from 'lucide-react';
+import { LEVEL_THRESHOLDS, LEVEL_TITLES, ACHIEVEMENTS } from '../constants';
+import { Trophy, BookOpen, Flame, Activity, Lock } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 interface DashboardProps {
@@ -75,7 +75,7 @@ const Dashboard: React.FC<DashboardProps> = ({ stats, xpHistory }) => {
            </div>
         </div>
 
-        {/* Simple Session Stat Card (Replaces Stack) */}
+        {/* Simple Session Stat Card */}
         <div className="bg-gray-900/40 backdrop-blur-xl p-6 rounded-3xl border border-white/5 flex flex-col justify-center items-start group hover:bg-white/5 transition-colors">
             <div className="flex justify-between w-full items-start mb-2">
                  <p className="text-gray-400 text-xs uppercase font-bold tracking-wider">Sessions</p>
@@ -86,6 +86,53 @@ const Dashboard: React.FC<DashboardProps> = ({ stats, xpHistory }) => {
             <h3 className="text-3xl font-bold text-white">{stats.sessionsCompleted}</h3>
             <p className="text-[10px] text-gray-500 mt-1">Total Logs</p>
         </div>
+      </div>
+
+      {/* Achievement Trophy Case */}
+      <div className="bg-gray-900/40 backdrop-blur-xl p-8 rounded-3xl border border-white/5 shadow-2xl relative">
+          <div className="flex items-center gap-3 mb-6">
+              <div className="p-2 bg-yellow-500/10 rounded-lg">
+                  <Trophy className="w-5 h-5 text-yellow-400" />
+              </div>
+              <div>
+                  <h3 className="text-lg font-bold text-white">Trophy Case</h3>
+                  <p className="text-xs text-gray-500">Collect badges by completing milestones</p>
+              </div>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-4">
+              {ACHIEVEMENTS.map((achievement) => {
+                  const isUnlocked = achievement.condition(stats);
+                  const Icon = achievement.icon;
+
+                  return (
+                      <div 
+                        key={achievement.id} 
+                        className={`group relative p-4 rounded-2xl border flex flex-col items-center justify-center text-center transition-all duration-300 ${
+                            isUnlocked 
+                                ? 'bg-gradient-to-br from-gray-800 to-gray-900 border-yellow-500/30 hover:shadow-[0_0_15px_rgba(234,179,8,0.2)]' 
+                                : 'bg-black/20 border-white/5 grayscale opacity-50'
+                        }`}
+                        title={isUnlocked ? `Unlocked: ${achievement.description}` : `Locked: ${achievement.description}`}
+                      >
+                          {isUnlocked ? (
+                              <div className="mb-3 p-3 bg-yellow-500/10 rounded-full ring-1 ring-yellow-500/50 group-hover:scale-110 transition-transform duration-300">
+                                  <Icon className="w-6 h-6 text-yellow-400" />
+                              </div>
+                          ) : (
+                              <div className="mb-3 p-3 bg-gray-800 rounded-full">
+                                  <Lock className="w-6 h-6 text-gray-600" />
+                              </div>
+                          )}
+                          
+                          <h4 className={`text-xs font-bold mb-1 ${isUnlocked ? 'text-white' : 'text-gray-500'}`}>
+                              {achievement.title}
+                          </h4>
+                          <span className="text-[10px] text-gray-500 font-mono">+{achievement.xpReward} XP</span>
+                      </div>
+                  );
+              })}
+          </div>
       </div>
 
       {/* Chart Area */}

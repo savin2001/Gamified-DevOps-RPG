@@ -1,6 +1,6 @@
 
-import { ActivityType, CurriculumWeek, LabDefinition } from './types';
-import { Cloud, Server, Database, Shield, Globe, Cpu, Box, Layout, Code } from 'lucide-react';
+import { ActivityType, CurriculumWeek, LabDefinition, Achievement, UserStats } from './types';
+import { Cloud, Server, Database, Shield, Globe, Cpu, Box, Layout, Code, Rocket, Flame, Target, Zap, Brain, Terminal, Award, Star } from 'lucide-react';
 import React from 'react';
 
 export const XP_VALUES: Record<ActivityType, number> = {
@@ -28,6 +28,73 @@ export const LEVEL_TITLES = [
   "Cloud Architect 🏗️",
   "DevOps Professional 🚀",
   "DevOps Master 👑"
+];
+
+export const ACHIEVEMENTS: Achievement[] = [
+  { 
+    id: 'first-session', 
+    title: 'Hello World', 
+    description: 'Log your first study session.', 
+    icon: Rocket, 
+    xpReward: 50, 
+    condition: (s: UserStats) => s.sessionsCompleted >= 1 
+  },
+  { 
+    id: 'streak-3', 
+    title: 'Consistency is Key', 
+    description: 'Reach a 3-day learning streak.', 
+    icon: Flame, 
+    xpReward: 100, 
+    condition: (s: UserStats) => s.streak >= 3 
+  },
+  { 
+    id: 'streak-7', 
+    title: 'Week Warrior', 
+    description: 'Maintain a 7-day streak.', 
+    icon: Zap, 
+    xpReward: 300, 
+    condition: (s: UserStats) => s.streak >= 7 
+  },
+  { 
+    id: 'first-lab', 
+    title: 'Lab Rat', 
+    description: 'Complete your first Lab.', 
+    icon: Terminal, 
+    xpReward: 150, 
+    condition: (s: UserStats) => s.labsCompleted >= 1 
+  },
+  { 
+    id: 'project-builder', 
+    title: 'Builder', 
+    description: 'Complete 1 Project.', 
+    icon: Code, 
+    xpReward: 250, 
+    condition: (s: UserStats) => s.projectsCompleted >= 1 
+  },
+  { 
+    id: 'quiz-whiz', 
+    title: 'Trivia Buff', 
+    description: 'Pass 3 AI Quizzes.', 
+    icon: Brain, 
+    xpReward: 200, 
+    condition: (s: UserStats) => s.quizzesCompleted >= 3 
+  },
+  { 
+    id: 'level-5', 
+    title: 'Halfway Hero', 
+    description: 'Reach Level 5.', 
+    icon: Star, 
+    xpReward: 500, 
+    condition: (s: UserStats) => s.level >= 5 
+  },
+  { 
+    id: 'master', 
+    title: 'DevOps Master', 
+    description: 'Reach Level 10.', 
+    icon: Award, 
+    xpReward: 1000, 
+    condition: (s: UserStats) => s.level >= 10 
+  }
 ];
 
 export const LAB_DATA: Record<number, LabDefinition> = {
@@ -428,7 +495,7 @@ export const CURRICULUM_DATA: CurriculumWeek[] = Object.values(LAB_DATA).map((la
   };
 }).sort((a, b) => a.id - b.id);
 
-export const INITIAL_STATS = {
+export const INITIAL_STATS: UserStats = {
   xp: 0,
   level: 1,
   streak: 0,
@@ -436,5 +503,7 @@ export const INITIAL_STATS = {
   totalStudyHours: 0,
   sessionsCompleted: 0,
   projectsCompleted: 0,
+  labsCompleted: 0,
+  quizzesCompleted: 0,
   certificationsEarned: 0
 };

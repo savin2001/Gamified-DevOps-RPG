@@ -17,6 +17,8 @@ export interface UserStats {
   totalStudyHours: number;
   sessionsCompleted: number;
   projectsCompleted: number;
+  labsCompleted: number;
+  quizzesCompleted: number;
   certificationsEarned: number;
 }
 
@@ -44,8 +46,7 @@ export interface Achievement {
   id: string;
   title: string;
   description: string;
-  icon: string;
-  unlocked: boolean;
+  icon: any; 
   xpReward: number;
   condition: (stats: UserStats) => boolean;
 }
