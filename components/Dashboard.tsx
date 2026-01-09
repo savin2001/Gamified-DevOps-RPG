@@ -2,7 +2,7 @@
 import React from 'react';
 import { UserStats } from '../types';
 import { LEVEL_THRESHOLDS, LEVEL_TITLES } from '../constants';
-import { Zap, Trophy, Clock, BookOpen, Flame, Activity } from 'lucide-react';
+import { Trophy, BookOpen, Flame, Activity } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 interface DashboardProps {
@@ -75,27 +75,16 @@ const Dashboard: React.FC<DashboardProps> = ({ stats, xpHistory }) => {
            </div>
         </div>
 
-        {/* Stats Stack */}
-        <div className="grid grid-rows-2 gap-4">
-             <div className="bg-gray-900/40 backdrop-blur-xl p-4 rounded-3xl border border-white/5 flex items-center justify-between group hover:bg-white/5 transition-colors">
-                <div>
-                    <p className="text-gray-400 text-xs uppercase font-bold tracking-wider mb-1">Hours</p>
-                    <h3 className="text-xl font-bold text-white">{stats.totalStudyHours}</h3>
-                </div>
-                <div className="p-2.5 bg-green-500/10 rounded-xl border border-green-500/20 group-hover:scale-110 transition-transform">
-                    <Clock className="w-5 h-5 text-green-400" />
-                </div>
-             </div>
-             
-             <div className="bg-gray-900/40 backdrop-blur-xl p-4 rounded-3xl border border-white/5 flex items-center justify-between group hover:bg-white/5 transition-colors">
-                <div>
-                    <p className="text-gray-400 text-xs uppercase font-bold tracking-wider mb-1">Sessions</p>
-                    <h3 className="text-xl font-bold text-white">{stats.sessionsCompleted}</h3>
-                </div>
-                <div className="p-2.5 bg-purple-500/10 rounded-xl border border-purple-500/20 group-hover:scale-110 transition-transform">
+        {/* Simple Session Stat Card (Replaces Stack) */}
+        <div className="bg-gray-900/40 backdrop-blur-xl p-6 rounded-3xl border border-white/5 flex flex-col justify-center items-start group hover:bg-white/5 transition-colors">
+            <div className="flex justify-between w-full items-start mb-2">
+                 <p className="text-gray-400 text-xs uppercase font-bold tracking-wider">Sessions</p>
+                 <div className="p-2.5 bg-purple-500/10 rounded-xl border border-purple-500/20 group-hover:scale-110 transition-transform">
                     <BookOpen className="w-5 h-5 text-purple-400" />
-                </div>
-             </div>
+                 </div>
+            </div>
+            <h3 className="text-3xl font-bold text-white">{stats.sessionsCompleted}</h3>
+            <p className="text-[10px] text-gray-500 mt-1">Total Logs</p>
         </div>
       </div>
 

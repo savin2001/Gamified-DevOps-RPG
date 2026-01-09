@@ -7,25 +7,49 @@ import LabHub from './components/LabHub';
 import ProjectHub from './components/ProjectHub';
 import BlogHub from './components/BlogHub';
 import AiMentor from './components/AiMentor';
-import { UserStats, ActivityLog, ActivityType } from './types';
-import { getStoredStats, getActivityHistory, logActivity, resetProgress } from './services/gamificationService';
-import { Rocket, History, LayoutDashboard, Book, Beaker, Trash2, Code, Edit3, Menu, X, ChevronRight, Activity } from 'lucide-react';
+import AuthView from './components/AuthView';
+import Leaderboard from './components/Leaderboard';
+import { UserStats, ActivityLog, UserProfile } from './types';
+import { getStoredStats, getActivityHistory, resetProgress } from './services/gamificationService';
+import { getCurrentUser, logoutUser } from './services/authService';
+import { Rocket, LayoutDashboard, Book, Beaker, Trash2, Code, Edit3, Menu, X, ChevronRight, Activity, LogOut, Trophy } from 'lucide-react';
 
 const App: React.FC = () => {
+  const [user, setUser] = useState<UserProfile | null>(null);
   const [stats, setStats] = useState<UserStats | null>(null);
   const [logs, setLogs] = useState<ActivityLog[]>([]);
-  const [view, setView] = useState<'dashboard' | 'curriculum' | 'study' | 'labs' | 'projects' | 'blog'>('dashboard');
+  const [view, setView] = useState<'dashboard' | 'curriculum' | 'study' | 'labs' | 'projects' | 'blog' | 'leaderboard'>('dashboard');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   useEffect(() => {
-    // Hydrate state from local storage on mount
-    setStats(getStoredStats());
-    setLogs(getActivityHistory());
+    // Check for active session
+    const activeUser = getCurrentUser();
+    if (activeUser) {
+        setUser(activeUser);
+        setStats(getStoredStats(activeUser.id));
+        setLogs(getActivityHistory(activeUser.id));
+    }
   }, []);
 
+  const handleLogin = (loggedInUser: UserProfile) => {
+      setUser(loggedInUser);
+      setStats(getStoredStats(loggedInUser.id));
+      setLogs(getActivityHistory(loggedInUser.id));
+      setView('dashboard');
+  };
+
+  const handleLogout = () => {
+      logoutUser();
+      setUser(null);
+      setStats(null);
+      setLogs([]);
+  };
+
   const refreshStats = () => {
-    setStats(getStoredStats());
-    setLogs(getActivityHistory());
+    if (user) {
+        setStats(getStoredStats(user.id));
+        setLogs(getActivityHistory(user.id));
+    }
   }
 
   const handleReset = () => {
@@ -33,31 +57,29 @@ const App: React.FC = () => {
       const initial = resetProgress();
       setStats(initial);
       setLogs([]);
-      window.location.reload(); // Ensure all sub-components re-mount clean
+      window.location.reload(); 
     }
   };
+
+  if (!user) {
+      return <AuthView onLogin={handleLogin} />;
+  }
 
   const navItems = [
     { id: 'dashboard', icon: LayoutDashboard, label: 'Dashboard' },
     { id: 'study', icon: Book, label: 'Study' },
     { id: 'labs', icon: Beaker, label: 'Labs' },
     { id: 'projects', icon: Code, label: 'Projects' },
-    { id: 'blog', icon: Edit3, label: 'Blog & Commit' },
+    { id: 'blog', icon: Edit3, label: 'Blog' },
+    { id: 'leaderboard', icon: Trophy, label: 'Leaderboard' },
   ];
 
-  if (!stats) return <div className="min-h-screen bg-[#030712] flex items-center justify-center text-white font-mono">INITIALIZING SYSTEM...</div>;
+  if (!stats) return <div className="min-h-screen bg-[#030712] flex items-center justify-center text-white font-mono">LOADING USER DATA...</div>;
 
-  // Transform logs for chart data (simple aggregation for demo)
-  const chartData = logs.slice(0, 30).reverse().map(log => ({
-    date: new Date(log.timestamp).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }),
-    xp: log.xpEarned
-  }));
-
-  // Create cumulative XP for the chart
+  // Transform logs for chart data 
   const cumulativeChartData = [];
   let runningTotal = stats.xp - logs.reduce((acc, curr) => acc + curr.xpEarned, 0); 
   
-  // Re-build history forward
   for (const log of logs.slice().reverse()) {
       runningTotal += log.xpEarned;
       cumulativeChartData.push({
@@ -66,7 +88,7 @@ const App: React.FC = () => {
       });
   }
   if (cumulativeChartData.length === 0) {
-      cumulativeChartData.push({ date: 'Start', xp: 0 }); // Start at 0 for clean slate
+      cumulativeChartData.push({ date: 'Start', xp: 0 }); 
   }
 
   return (
@@ -112,6 +134,21 @@ const App: React.FC = () => {
                 ))}
             </div>
 
+            {/* User Profile / Logout */}
+            <div className="hidden md:flex items-center gap-4">
+                <div className="text-right">
+                    <div className="text-sm font-bold text-white">{user.username}</div>
+                    <div className="text-[10px] text-gray-500 uppercase">{user.role}</div>
+                </div>
+                <button 
+                    onClick={handleLogout} 
+                    className="p-2 bg-white/5 hover:bg-red-500/20 text-gray-400 hover:text-red-400 rounded-lg transition-colors"
+                    title="Logout"
+                >
+                    <LogOut className="w-5 h-5" />
+                </button>
+            </div>
+
             {/* Mobile Menu Button */}
             <div className="flex md:hidden">
               <button
@@ -146,6 +183,11 @@ const App: React.FC = () => {
                   {navItem.label}
                 </button>
               ))}
+              <div className="border-t border-white/10 my-2 pt-2">
+                  <button onClick={handleLogout} className="w-full flex items-center gap-3 px-4 py-3 text-red-400 hover:bg-red-500/10 rounded-xl">
+                      <LogOut className="w-5 h-5" /> Logout ({user.username})
+                  </button>
+              </div>
             </div>
           </div>
         )}
@@ -201,6 +243,7 @@ const App: React.FC = () => {
                     {view === 'labs' && <LabHub onActivityLogged={refreshStats} />}
                     {view === 'projects' && <ProjectHub onActivityLogged={refreshStats} />}
                     {view === 'blog' && <BlogHub onActivityLogged={refreshStats} />}
+                    {view === 'leaderboard' && <Leaderboard currentUser={user} />}
                 </div>
             </div>
 
@@ -248,11 +291,11 @@ const App: React.FC = () => {
                         className="group text-xs text-red-400 hover:text-red-300 flex items-center justify-center gap-2 mx-auto px-4 py-2 rounded-full hover:bg-red-500/10 transition-all"
                      >
                         <Trash2 className="w-3 h-3 group-hover:scale-110 transition-transform" />
-                        Reset System Progress
+                        Reset User Progress
                      </button>
                      <p className="text-[10px] text-gray-600 mt-4 font-mono">
-                        DEVOPS_QUEST_OS v2.0.4 <br/> 
-                        <span className="opacity-50">System Stable</span>
+                        DEVOPS_QUEST_OS v2.1.0 <br/> 
+                        <span className="opacity-50">Multi-User System Online</span>
                      </p>
                 </div>
             </div>

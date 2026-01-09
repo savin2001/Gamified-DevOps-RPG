@@ -1,5 +1,15 @@
 
+export interface UserProfile {
+  id: string;
+  username: string;
+  email: string; // Used as unique identifier for login
+  role: 'admin' | 'user';
+  avatar?: string;
+  joinedAt: string;
+}
+
 export interface UserStats {
+  userId?: string; // Linked to UserProfile
   xp: number;
   level: number;
   streak: number;
@@ -12,11 +22,12 @@ export interface UserStats {
 
 export interface ActivityLog {
   id: string;
+  userId?: string; // Linked to UserProfile
   type: ActivityType;
   description: string;
   xpEarned: number;
   timestamp: string;
-  weekId?: number; // Added to track progress per week
+  weekId?: number; 
 }
 
 export enum ActivityType {
@@ -86,7 +97,7 @@ export interface NoteEntry {
   challenge: { problem: string; solution: string; learning: string };
   
   // Resources & Planning
-  resources: { title: string; type: string }[];
+  resources: { title: string; url: string; type: string }[];
   plan: { goal: string; prep: string }[]; // Tomorrow's plan breakdown
 
   // Metrics & Reflection

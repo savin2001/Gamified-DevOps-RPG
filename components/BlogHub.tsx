@@ -1,9 +1,10 @@
 
 import React, { useState, useEffect, useRef } from 'react';
+import ReactMarkdown from 'react-markdown';
 import { LAB_DATA } from '../constants';
-import { getCompletedLabs, logActivity, hasBlogForWeek, saveBlogPost, getBlogPostForWeek, getNotebookEntries, getLabSubmissions } from '../services/gamificationService';
+import { getCompletedLabs, logActivity, saveBlogPost, getBlogPostForWeek, getNotebookEntries, getLabSubmissions } from '../services/gamificationService';
 import { ActivityType, BlogPost } from '../types';
-import { Edit3, Github, Lock, CheckCircle2, Send, ChevronRight, Hash, Sparkles, Terminal, Globe, Share2, FileText, Code, Copy, Eye } from 'lucide-react';
+import { Edit3, Github, Lock, CheckCircle2, Send, ChevronRight, Hash, Sparkles, Terminal, FileText, Copy } from 'lucide-react';
 import { verifyGithubActivity } from '../services/geminiService';
 import SuccessModal from './SuccessModal';
 
@@ -15,7 +16,7 @@ const BlogHub: React.FC<BlogHubProps> = ({ onActivityLogged }) => {
   const [week, setWeek] = useState(1);
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
-  const [githubUrl, setGithubUrl] = useState('https://github.com/savin2001/devops-learning-journey');
+  const [githubUrl, setGithubUrl] = useState('');
   const [completedItems, setCompletedItems] = useState<string[]>([]);
   const [isVerifying, setIsVerifying] = useState(false);
   const [verificationResult, setVerificationResult] = useState<string | null>(null);
@@ -51,19 +52,56 @@ const BlogHub: React.FC<BlogHubProps> = ({ onActivityLogged }) => {
     const entries = getNotebookEntries().filter(e => e.week === week).sort((a,b) => a.day - b.day);
     if (entries.length === 0) return "> No study sessions logged for this week.";
     
-    return entries.map(e => `## Day ${e.day}: ${e.mainTopic}
+    return entries.map(e => {
+        // 1. Resources Section
+        const resourcesSection = e.resources && e.resources.length > 0
+            ? e.resources.map(r => r.url 
+                ? `- **${r.type}**: [${r.title}](${r.url})` 
+                : `- **${r.type}**: ${r.title}`
+              ).join('\n')
+            : "_No resources logged._";
+
+        // 2. Concepts & Notes Section
+        let notesSection = "_No specific notes recorded._";
+        if (e.topics && e.topics.length > 0) {
+            notesSection = e.topics.map(t => `#### ${t.title}\n${t.notes}`).join('\n\n');
+        } else if (e.concepts && e.concepts.length > 0) {
+            notesSection = `**Key Concepts:**\n${e.concepts.map(c => `- ${c}`).join('\n')}`;
+            if (e.tools && e.tools.length > 0) {
+                notesSection += `\n\n**Tools:**\n${e.tools.map(t => `- ${t}`).join('\n')}`;
+            }
+        }
+
+        // 3. Hands-On Section
+        let handsOnSection = "";
+        if (e.activities && e.activities.length > 0) {
+             handsOnSection = e.activities.map(a => `- [x] ${a}`).join('\n');
+        } else if (e.handsOnDescription) {
+             handsOnSection = e.handsOnDescription;
+        } else {
+             handsOnSection = "_No hands-on activity recorded._";
+        }
+        
+        if (e.handsOnCode) {
+            handsOnSection += `\n\n**Snippet:**\n\`\`\`bash\n${e.handsOnCode}\n\`\`\``;
+        }
+
+        return `## Day ${e.day}: ${e.mainTopic}
 **Date:** ${e.date} | **Duration:** ${e.duration}h
 
-### 🧠 Concepts
-${e.topics.map(t => `- **${t.title}**: ${t.notes.substring(0, 100)}...`).join('\n')}
+### 🧠 Concepts & Notes
+${notesSection}
 
 ### 💻 Hands-On
-${e.activities.map(a => `- [x] ${a}`).join('\n')}
-${e.handsOnCode ? `\`\`\`bash\n${e.handsOnCode}\n\`\`\`` : ''}
+${handsOnSection}
+
+### 📖 Resources Used
+${resourcesSection}
 
 ### 📝 Reflections
-*${e.reflection || "No reflection logged."}*
-`).join('\n\n---\n\n');
+> ${e.reflection || "No reflection logged."}
+`;
+    }).join('\n\n---\n\n');
   };
 
   const generateLabArtifact = () => {
@@ -74,18 +112,19 @@ ${e.handsOnCode ? `\`\`\`bash\n${e.handsOnCode}\n\`\`\`` : ''}
     return weekLabs.map(l => {
         const output = submissions[l.id];
         const status = output ? "✅ Completed" : "❌ Not Attempted";
+        
         return `## ${l.id}: ${l.title}
 **Type:** ${l.type} | **Status:** ${status}
 
-### Objective
-${l.objectives.join(', ')}
+### 🎯 Objectives
+${l.objectives.map(o => `- ${o}`).join('\n')}
 
-### Verification Output
+### 📟 Verification Output
 \`\`\`bash
 ${output || "# No output recorded"}
 \`\`\`
 `;
-    }).join('\n\n');
+    }).join('\n\n---\n\n');
   };
 
   const handleCopy = (text: string, type: string) => {
@@ -134,6 +173,30 @@ ${output || "# No output recorded"}
     
     setTitle('');
     setContent('');
+  };
+
+  // Custom Markdown Components for Consistent Styling
+  const markdownComponents = {
+    h1: ({node, ...props}: any) => <h2 className="text-2xl font-bold text-white mb-6 border-b border-gray-700 pb-3" {...props} />,
+    h2: ({node, ...props}: any) => <h3 className="text-xl font-bold text-blue-400 mt-8 mb-4 flex items-center gap-2" {...props} />,
+    h3: ({node, ...props}: any) => <h4 className="text-lg font-bold text-purple-300 mt-6 mb-3" {...props} />,
+    h4: ({node, ...props}: any) => <h5 className="text-md font-bold text-white mt-4 mb-2" {...props} />,
+    p: ({node, ...props}: any) => <p className="mb-4 text-gray-300 leading-relaxed" {...props} />,
+    ul: ({node, ...props}: any) => <ul className="list-disc list-inside mb-4 space-y-2 ml-2 text-gray-300" {...props} />,
+    ol: ({node, ...props}: any) => <ol className="list-decimal list-inside mb-4 space-y-2 ml-2 text-gray-300" {...props} />,
+    li: ({node, ...props}: any) => <li className="pl-1" {...props} />,
+    a: ({node, ...props}: any) => <a className="text-blue-400 hover:text-blue-300 hover:underline cursor-pointer transition-colors" target="_blank" rel="noreferrer" {...props} />,
+    strong: ({node, ...props}: any) => <span className="font-bold text-white" {...props} />,
+    blockquote: ({node, ...props}: any) => <blockquote className="border-l-4 border-gray-600 pl-4 italic text-gray-400 my-4 bg-gray-900/50 py-3 pr-2 rounded-r" {...props} />,
+    hr: ({node, ...props}: any) => <hr className="border-gray-800 my-8" {...props} />,
+    code: ({node, inline, className, children, ...props}: any) => {
+        return inline ? (
+            <code className="bg-gray-800 px-1.5 py-0.5 rounded text-xs font-mono text-green-300 border border-white/10" {...props}>{children}</code>
+        ) : (
+            <code className="block bg-transparent text-sm font-mono text-gray-300" {...props}>{children}</code>
+        );
+    },
+    pre: ({node, ...props}: any) => <pre className="bg-[#0f0f0f] p-4 rounded-xl my-4 overflow-x-auto border border-white/10 shadow-inner" {...props} />,
   };
 
   return (
@@ -239,18 +302,28 @@ ${output || "# No output recorded"}
                         </div>
 
                         {/* Content Viewer */}
-                        <div className="flex-1 overflow-y-auto p-6 bg-[#0c0c0c] relative">
+                        <div className="flex-1 overflow-y-auto p-6 bg-[#0c0c0c] relative scrollbar-thin scrollbar-thumb-gray-800 scrollbar-track-transparent">
                              {activeArtifactTab === 'blog' && (
-                                <div className="prose prose-invert max-w-none">
-                                    <h1 className="text-2xl font-bold text-white mb-4">{existingBlog?.title}</h1>
-                                    <div className="whitespace-pre-wrap text-gray-300 font-sans leading-relaxed">{existingBlog?.content}</div>
+                                <div className="animate-in fade-in duration-300">
+                                    <h1 className="text-3xl font-bold text-white mb-6 border-b border-gray-700 pb-4">{existingBlog?.title}</h1>
+                                    <ReactMarkdown components={markdownComponents}>
+                                        {existingBlog?.content || ''}
+                                    </ReactMarkdown>
                                 </div>
                              )}
                              {activeArtifactTab === 'study' && (
-                                <pre className="font-mono text-sm text-blue-300 whitespace-pre-wrap">{generateStudyArtifact()}</pre>
+                                <div className="animate-in fade-in duration-300">
+                                    <ReactMarkdown components={markdownComponents}>
+                                        {generateStudyArtifact()}
+                                    </ReactMarkdown>
+                                </div>
                              )}
                              {activeArtifactTab === 'lab' && (
-                                <pre className="font-mono text-sm text-green-300 whitespace-pre-wrap">{generateLabArtifact()}</pre>
+                                <div className="animate-in fade-in duration-300">
+                                    <ReactMarkdown components={markdownComponents}>
+                                        {generateLabArtifact()}
+                                    </ReactMarkdown>
+                                </div>
                              )}
                         </div>
                         

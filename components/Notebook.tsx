@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { ActivityType, NoteEntry } from '../types';
 import { logActivity, saveNotebookEntry, getNotebookEntries } from '../services/gamificationService';
@@ -78,7 +79,7 @@ const Notebook: React.FC<NotebookProps> = ({ onActivityLogged }) => {
         solution: challengeSolution,
         learning: challengeLearning
       },
-      resources: resources.filter(r => r).map(r => ({ title: r, type: 'Link' })),
+      resources: resources.filter(r => r).map(r => ({ title: r, url: '', type: 'Link' })),
       plan: plan.filter(p => p).map(p => ({ goal: p, prep: '' })),
       mood, energy, confidence
     };

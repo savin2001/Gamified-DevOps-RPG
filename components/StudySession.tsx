@@ -1,8 +1,9 @@
 
 import React, { useState, useEffect } from 'react';
+import ReactMarkdown from 'react-markdown';
 import { ActivityType, NoteEntry } from '../types';
 import { logActivity, saveNotebookEntry, getNotebookEntries } from '../services/gamificationService';
-import { Save, Plus, Copy, Book, ArrowRight, ArrowLeft, Calendar, Clock, Brain, Code, Zap, Smile, Rocket, Coffee, AlertCircle, Target, ChevronDown, ChevronUp, FileText, List, CheckSquare, HelpCircle, Link as LinkIcon, Trash } from 'lucide-react';
+import { Save, Plus, Copy, Book, ArrowRight, ArrowLeft, Calendar, Clock, Brain, Code, Zap, Smile, Rocket, Coffee, AlertCircle, Target, ChevronDown, ChevronUp, CheckSquare, Link as LinkIcon, Trash, ExternalLink } from 'lucide-react';
 import SuccessModal from './SuccessModal';
 
 interface StudySessionProps {
@@ -17,6 +18,8 @@ const MOODS = [
   { id: 'tired', label: 'Tired', score: 4, icon: Coffee, color: 'text-orange-400', bg: 'bg-orange-500/20 border-orange-500/50' },
   { id: 'frustrated', label: 'Frustrated', score: 3, icon: AlertCircle, color: 'text-red-400', bg: 'bg-red-500/20 border-red-500/50' },
 ];
+
+const RESOURCE_TYPES = ['Documentation', 'Video', 'Article', 'Course', 'GitHub Repo', 'Tool'];
 
 const StudySession: React.FC<StudySessionProps> = ({ onActivityLogged }) => {
   const [isEditing, setIsEditing] = useState(false);
@@ -51,7 +54,7 @@ const StudySession: React.FC<StudySessionProps> = ({ onActivityLogged }) => {
 
   // Step 4: Analysis & Resources
   const [takeaways, setTakeaways] = useState<string[]>(['', '', '']); // Fixed 3 top insights
-  const [resources, setResources] = useState<{title: string, type: string}[]>([{ title: '', type: 'Documentation' }]);
+  const [resources, setResources] = useState<{title: string, url: string, type: string}[]>([{ title: '', url: '', type: 'Documentation' }]);
   const [planGoals, setPlanGoals] = useState<string[]>(['']);
   const [planPrep, setPlanPrep] = useState<string[]>(['']);
 
@@ -114,12 +117,17 @@ const StudySession: React.FC<StudySessionProps> = ({ onActivityLogged }) => {
   }
   const addActivity = () => setActivities([...activities, '']);
 
-  const handleResourceChange = (index: number, field: 'title' | 'type', value: string) => {
+  const handleResourceChange = (index: number, field: 'title' | 'url' | 'type', value: string) => {
       const newRes = [...resources];
       newRes[index][field] = value;
       setResources(newRes);
   }
-  const addResource = () => setResources([...resources, { title: '', type: 'Article' }]);
+  const addResource = () => setResources([...resources, { title: '', url: '', type: 'Documentation' }]);
+  const removeResource = (index: number) => {
+      const newRes = [...resources];
+      newRes.splice(index, 1);
+      setResources(newRes);
+  }
 
   const handleArrayChange = (setter: React.Dispatch<React.SetStateAction<string[]>>, index: number, value: string) => {
     setter(prev => {
@@ -150,7 +158,8 @@ const StudySession: React.FC<StudySessionProps> = ({ onActivityLogged }) => {
       week, day, date, time, duration,
       mainTopic: mainTopic || `Week ${week} Study`,
       status: 'Completed',
-      topics: topics.filter(t => t.title),
+      // Allow topics that have content even if title is missing
+      topics: topics.filter(t => t.title || t.notes).map(t => ({...t, title: t.title || 'General Notes'})),
       activities: activities.filter(a => a),
       handsOnCode,
       takeaways: takeaways.filter(t => t),
@@ -164,7 +173,7 @@ const StudySession: React.FC<StudySessionProps> = ({ onActivityLogged }) => {
       mood, energy, confidence, focus, quality,
       reflection, questions,
       // Backward compat filler
-      concepts: topics.map(t => t.title),
+      concepts: topics.map(t => t.title || 'Note Block'),
       tools: [],
       handsOnDescription: activities.join(', ')
     };
@@ -189,8 +198,52 @@ const StudySession: React.FC<StudySessionProps> = ({ onActivityLogged }) => {
 
   // --- GENERATE MARKDOWN ---
   const generateMarkdown = (entry: NoteEntry) => {
-    // ... (Markdown generation logic remains same as provided code) ...
-    return `# Week ${entry.week} Day ${entry.day} - ${entry.mainTopic}`; // simplified for brevity
+    // Resources
+    const resourcesSection = entry.resources && entry.resources.length > 0
+        ? entry.resources.map(r => r.url 
+            ? `- **${r.type}**: [${r.title}](${r.url})` 
+            : `- **${r.type}**: ${r.title}`
+          ).join('\n')
+        : "_No resources logged._";
+
+    // Notes
+    let notesSection = "_No specific notes recorded._";
+    if (entry.topics && entry.topics.length > 0) {
+        notesSection = entry.topics.map(t => `#### ${t.title}\n${t.notes}`).join('\n\n');
+    } else if (entry.concepts && entry.concepts.length > 0) {
+         // Fallback for older entries
+        notesSection = `**Key Concepts:**\n${entry.concepts.map(c => `- ${c}`).join('\n')}`;
+    }
+
+    // Hands-On
+    let handsOnSection = "";
+    if (entry.activities && entry.activities.length > 0) {
+         handsOnSection = entry.activities.map(a => `- [x] ${a}`).join('\n');
+    } else if (entry.handsOnDescription) {
+         handsOnSection = entry.handsOnDescription;
+    } else {
+         handsOnSection = "_No hands-on activity recorded._";
+    }
+    
+    if (entry.handsOnCode) {
+        handsOnSection += `\n\n**Snippet:**\n\`\`\`bash\n${entry.handsOnCode}\n\`\`\``;
+    }
+
+    return `# Week ${entry.week} Day ${entry.day}: ${entry.mainTopic}
+**Date:** ${entry.date} | **Duration:** ${entry.duration}h | **Mood:** ${entry.mood}
+
+### 🧠 Concepts & Notes
+${notesSection}
+
+### 💻 Hands-On
+${handsOnSection}
+
+### 📖 Resources Used
+${resourcesSection}
+
+### 📝 Reflections
+> ${entry.reflection || "No reflection logged."}
+`;
   };
 
   const copyToClipboard = (entry: NoteEntry) => {
@@ -202,6 +255,26 @@ const StudySession: React.FC<StudySessionProps> = ({ onActivityLogged }) => {
 
   const toggleExpand = (id: string) => {
       setExpandedEntryId(expandedEntryId === id ? null : id);
+  };
+
+  // Custom Markdown Components for Study Session Cards (Compact)
+  const markdownComponents = {
+    h1: ({node, ...props}: any) => <h3 className="text-sm font-bold text-white mb-2 mt-3 border-b border-gray-700 pb-1" {...props} />,
+    h2: ({node, ...props}: any) => <h4 className="text-xs font-bold text-blue-400 mt-3 mb-2" {...props} />,
+    h3: ({node, ...props}: any) => <h5 className="text-xs font-bold text-purple-300 mt-2 mb-1" {...props} />,
+    p: ({node, ...props}: any) => <p className="mb-2 text-xs text-gray-300 leading-relaxed" {...props} />,
+    ul: ({node, ...props}: any) => <ul className="list-disc list-inside mb-2 space-y-1 ml-1 text-xs text-gray-300" {...props} />,
+    ol: ({node, ...props}: any) => <ol className="list-decimal list-inside mb-2 space-y-1 ml-1 text-xs text-gray-300" {...props} />,
+    li: ({node, ...props}: any) => <li className="pl-1" {...props} />,
+    a: ({node, ...props}: any) => <a className="text-blue-400 hover:text-blue-300 hover:underline cursor-pointer" target="_blank" rel="noreferrer" {...props} />,
+    strong: ({node, ...props}: any) => <span className="font-bold text-white" {...props} />,
+    code: ({node, inline, className, children, ...props}: any) => {
+        return inline ? (
+            <code className="bg-gray-800 px-1 py-0.5 rounded text-[10px] font-mono text-green-300 border border-white/10" {...props}>{children}</code>
+        ) : (
+            <code className="block bg-transparent text-xs font-mono text-gray-300" {...props}>{children}</code>
+        );
+    },
   };
 
   // --- RENDER STEPS ---
@@ -339,11 +412,12 @@ const StudySession: React.FC<StudySessionProps> = ({ onActivityLogged }) => {
                 <div className="animate-in slide-in-from-right-8 fade-in duration-300">
                     <StepHeader icon={Target} title="Insights & Resources" desc="Synthesize your learning and cite your sources." color="yellow" />
 
-                    <div className="grid md:grid-cols-2 gap-6">
-                        <div className="bg-white/5 p-6 rounded-2xl border border-white/5">
+                    <div className="grid lg:grid-cols-2 gap-6">
+                        {/* Insights Column */}
+                        <div className="bg-white/5 p-6 rounded-2xl border border-white/5 h-fit">
                             <label className={labelClasses}>Top 3 Insights</label>
                             {takeaways.map((t, i) => (
-                                <div key={i} className="flex gap-3 mb-3 items-center">
+                                <div key={i} className="flex gap-3 mb-4 last:mb-0 items-center">
                                     <span className="text-yellow-500 font-bold font-mono text-xl opacity-50">0{i+1}</span>
                                     <input 
                                         value={t} 
@@ -355,25 +429,68 @@ const StudySession: React.FC<StudySessionProps> = ({ onActivityLogged }) => {
                             ))}
                         </div>
 
-                        <div className="bg-white/5 p-6 rounded-2xl border border-white/5">
-                            <label className={labelClasses}>Resources Used</label>
-                            {resources.map((r, i) => (
-                                <div key={i} className="flex gap-2 mb-3">
-                                    <input 
-                                        value={r.title} 
-                                        onChange={e => handleResourceChange(i, 'title', e.target.value)} 
-                                        className="flex-1 bg-black/20 border border-white/10 rounded-lg p-2 text-white text-sm focus:border-yellow-500/50 outline-none" 
-                                        placeholder="Title / URL" 
-                                    />
-                                    <input 
-                                        value={r.type} 
-                                        onChange={e => handleResourceChange(i, 'type', e.target.value)} 
-                                        className="w-24 bg-black/20 border border-white/10 rounded-lg p-2 text-white text-sm focus:border-yellow-500/50 outline-none" 
-                                        placeholder="Type" 
-                                    />
+                        {/* Resources Column (Redesigned) */}
+                        <div className="space-y-4">
+                             <div className="flex items-center justify-between">
+                                <label className={labelClasses}>Resources Used</label>
+                                <button onClick={addResource} className="text-xs text-yellow-400 flex items-center gap-1 hover:text-yellow-300 bg-yellow-400/10 px-2 py-1 rounded border border-yellow-400/20">
+                                    <Plus className="w-3 h-3" /> Add Resource
+                                </button>
+                             </div>
+                             
+                             {resources.map((r, i) => (
+                                <div key={i} className="bg-black/20 p-4 rounded-2xl border border-white/10 relative group hover:bg-black/30 transition-colors">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                        {/* Title Field */}
+                                        <div className="col-span-1 md:col-span-2">
+                                            <label className="text-[10px] text-gray-500 font-bold uppercase tracking-wider mb-1 block">Title</label>
+                                            <input 
+                                                value={r.title} 
+                                                onChange={e => handleResourceChange(i, 'title', e.target.value)} 
+                                                className="w-full bg-transparent border-b border-white/10 pb-1 text-white text-sm focus:border-yellow-500 outline-none placeholder:text-gray-700" 
+                                                placeholder="e.g. AWS Official Documentation" 
+                                            />
+                                        </div>
+                                        
+                                        {/* Type Dropdown */}
+                                        <div className="col-span-1">
+                                            <label className="text-[10px] text-gray-500 font-bold uppercase tracking-wider mb-1 block">Type</label>
+                                            <select 
+                                                value={r.type} 
+                                                onChange={e => handleResourceChange(i, 'type', e.target.value)} 
+                                                className="w-full bg-gray-900 border border-white/10 rounded-lg py-2 px-2 text-xs text-gray-300 focus:border-yellow-500 outline-none"
+                                            >
+                                                {RESOURCE_TYPES.map(type => <option key={type} value={type}>{type}</option>)}
+                                            </select>
+                                        </div>
+
+                                        {/* URL Field */}
+                                        <div className="col-span-1">
+                                            <label className="text-[10px] text-gray-500 font-bold uppercase tracking-wider mb-1 block">URL</label>
+                                            <div className="flex items-center gap-2">
+                                                <LinkIcon className="w-3 h-3 text-gray-500" />
+                                                <input 
+                                                    value={r.url} 
+                                                    onChange={e => handleResourceChange(i, 'url', e.target.value)} 
+                                                    className="w-full bg-transparent border-b border-white/10 pb-1 text-blue-400 text-xs focus:border-blue-500 outline-none placeholder:text-gray-700" 
+                                                    placeholder="https://..." 
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Remove Button */}
+                                    {resources.length > 1 && (
+                                        <button 
+                                            onClick={() => removeResource(i)}
+                                            className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 shadow-lg opacity-0 group-hover:opacity-100 transition-opacity hover:scale-110"
+                                            title="Remove Resource"
+                                        >
+                                            <Trash className="w-3 h-3" />
+                                        </button>
+                                    )}
                                 </div>
-                            ))}
-                            <button onClick={addResource} className="text-xs text-yellow-400 flex items-center gap-1 hover:underline mt-2">+ Add Resource</button>
+                             ))}
                         </div>
                     </div>
                 </div>
@@ -569,34 +686,64 @@ const StudySession: React.FC<StudySessionProps> = ({ onActivityLogged }) => {
                     </div>
                     
                     {expandedEntryId === entry.id && (
-                        <div className="p-6 border-t border-white/5 bg-black/20 animate-in slide-in-from-top-2">
-                            {/* Detailed content display similar to previous but styled with new transparent aesthetics */}
-                             <div className="grid md:grid-cols-2 gap-8">
+                        <div className="p-6 border-t border-white/5 bg-black/20 animate-in slide-in-from-top-2 relative">
+                            {/* Copy Button */}
+                             <div className="absolute top-4 right-4 z-10">
+                                <button 
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        copyToClipboard(entry);
+                                    }}
+                                    className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-bold text-gray-400 hover:text-white transition-all group/btn"
+                                >
+                                    {copiedId === entry.id ? <CheckSquare className="w-3 h-3 text-green-400" /> : <Copy className="w-3 h-3 group-hover/btn:text-blue-400" />}
+                                    {copiedId === entry.id ? 'Copied!' : 'Copy Markdown'}
+                                </button>
+                             </div>
+
+                            {/* Detailed content display */}
+                             <div className="grid md:grid-cols-2 gap-8 mt-4">
                                 <div>
                                     <h5 className="text-xs font-bold text-blue-400 uppercase tracking-wider mb-4 flex items-center gap-2"><Brain className="w-4 h-4"/> Knowledge</h5>
                                     <div className="space-y-4">
                                         {entry.topics?.map((t, i) => (
                                             <div key={i} className="bg-white/5 rounded-lg p-3 border border-white/5">
                                                 <div className="font-bold text-white text-sm mb-1">{t.title}</div>
-                                                <div className="text-xs text-gray-400 leading-relaxed whitespace-pre-wrap">{t.notes}</div>
+                                                <div className="text-xs text-gray-400 leading-relaxed">
+                                                    <ReactMarkdown components={markdownComponents}>{t.notes}</ReactMarkdown>
+                                                </div>
                                             </div>
                                         ))}
                                     </div>
                                 </div>
                                 <div>
-                                    <h5 className="text-xs font-bold text-green-400 uppercase tracking-wider mb-4 flex items-center gap-2"><Code className="w-4 h-4"/> Practice</h5>
+                                    <h5 className="text-xs font-bold text-green-400 uppercase tracking-wider mb-4 flex items-center gap-2"><Code className="w-4 h-4"/> Practice & Resources</h5>
                                     {entry.handsOnCode && (
                                         <pre className="bg-black/40 rounded-lg p-3 text-xs font-mono text-gray-300 border border-white/10 overflow-x-auto mb-4">
                                             {entry.handsOnCode}
                                         </pre>
                                     )}
-                                    <ul className="space-y-2">
+                                    <ul className="space-y-2 mb-4">
                                         {entry.activities?.map((a, i) => (
                                             <li key={i} className="flex items-center gap-2 text-sm text-gray-300">
                                                 <CheckSquare className="w-4 h-4 text-green-500/50" /> {a}
                                             </li>
                                         ))}
                                     </ul>
+                                    {entry.resources && entry.resources.length > 0 && (
+                                        <div className="pt-4 border-t border-white/10">
+                                            <h6 className="text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2">Resources</h6>
+                                            <ul className="space-y-1">
+                                                {entry.resources.map((r, i) => (
+                                                    <li key={i} className="text-xs">
+                                                        <a href={r.url} target="_blank" rel="noreferrer" className="text-blue-400 hover:underline flex items-center gap-1">
+                                                            <ExternalLink className="w-3 h-3" /> {r.title} <span className="text-gray-600">({r.type})</span>
+                                                        </a>
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        </div>
+                                    )}
                                 </div>
                              </div>
                         </div>

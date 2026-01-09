@@ -1,86 +1,132 @@
 
-import { UserStats, ActivityLog, ActivityType, Achievement, NoteEntry, BlogPost } from '../types';
+import { UserStats, ActivityLog, ActivityType, NoteEntry, BlogPost, UserProfile } from '../types';
 import { XP_VALUES, LEVEL_THRESHOLDS, INITIAL_STATS } from '../constants';
+import { getCurrentUser, getUsers } from './authService';
 
-const STORAGE_KEY_STATS = 'devops_quest_stats';
-const STORAGE_KEY_LOGS = 'devops_quest_logs';
-const STORAGE_KEY_NOTEBOOK = 'devops_quest_notebook';
-const STORAGE_KEY_LABS = 'devops_quest_labs';
-const STORAGE_KEY_LAB_SUBMISSIONS = 'devops_quest_lab_submissions';
-const STORAGE_KEY_BLOGS = 'devops_quest_blogs';
-
-export const getStoredStats = (): UserStats => {
-  const stored = localStorage.getItem(STORAGE_KEY_STATS);
-  return stored ? JSON.parse(stored) : INITIAL_STATS;
+// We now prefix keys with the UserID
+const getKey = (baseKey: string, userId?: string) => {
+    const uid = userId || getCurrentUser()?.id;
+    if (!uid) throw new Error("No active user session for data access");
+    return `${uid}_${baseKey}`;
 };
 
-export const getActivityHistory = (): ActivityLog[] => {
-  const stored = localStorage.getItem(STORAGE_KEY_LOGS);
-  return stored ? JSON.parse(stored) : [];
+const BASE_KEYS = {
+    STATS: 'stats',
+    LOGS: 'logs',
+    NOTEBOOK: 'notebook',
+    LABS: 'labs',
+    LAB_SUBMISSIONS: 'lab_submissions',
+    BLOGS: 'blogs'
 };
 
-export const getNotebookEntries = (): NoteEntry[] => {
-  const stored = localStorage.getItem(STORAGE_KEY_NOTEBOOK);
-  return stored ? JSON.parse(stored) : [];
+export const getStoredStats = (userId?: string): UserStats => {
+  try {
+      const key = getKey(BASE_KEYS.STATS, userId);
+      const stored = localStorage.getItem(key);
+      return stored ? JSON.parse(stored) : { ...INITIAL_STATS, userId: userId || 'unknown' };
+  } catch (e) {
+      return INITIAL_STATS;
+  }
 };
 
-export const getCompletedLabs = (): string[] => {
-    const stored = localStorage.getItem(STORAGE_KEY_LABS);
-    return stored ? JSON.parse(stored) : [];
+export const getActivityHistory = (userId?: string): ActivityLog[] => {
+  try {
+      const key = getKey(BASE_KEYS.LOGS, userId);
+      const stored = localStorage.getItem(key);
+      return stored ? JSON.parse(stored) : [];
+  } catch (e) { return []; }
 };
 
-export const getLabSubmissions = (): Record<string, string> => {
-    const stored = localStorage.getItem(STORAGE_KEY_LAB_SUBMISSIONS);
-    return stored ? JSON.parse(stored) : {};
+export const getNotebookEntries = (userId?: string): NoteEntry[] => {
+  try {
+      const key = getKey(BASE_KEYS.NOTEBOOK, userId);
+      const stored = localStorage.getItem(key);
+      return stored ? JSON.parse(stored) : [];
+  } catch (e) { return []; }
 };
 
-export const getBlogPosts = (): BlogPost[] => {
-    const stored = localStorage.getItem(STORAGE_KEY_BLOGS);
-    return stored ? JSON.parse(stored) : [];
+export const getCompletedLabs = (userId?: string): string[] => {
+    try {
+        const key = getKey(BASE_KEYS.LABS, userId);
+        const stored = localStorage.getItem(key);
+        return stored ? JSON.parse(stored) : [];
+    } catch (e) { return []; }
 };
 
-export const getBlogPostForWeek = (week: number): BlogPost | undefined => {
-    const posts = getBlogPosts();
+export const getLabSubmissions = (userId?: string): Record<string, string> => {
+    try {
+        const key = getKey(BASE_KEYS.LAB_SUBMISSIONS, userId);
+        const stored = localStorage.getItem(key);
+        return stored ? JSON.parse(stored) : {};
+    } catch (e) { return {}; }
+};
+
+export const getBlogPosts = (userId?: string): BlogPost[] => {
+    try {
+        const key = getKey(BASE_KEYS.BLOGS, userId);
+        const stored = localStorage.getItem(key);
+        return stored ? JSON.parse(stored) : [];
+    } catch (e) { return []; }
+};
+
+export const getBlogPostForWeek = (week: number, userId?: string): BlogPost | undefined => {
+    const posts = getBlogPosts(userId);
     return posts.find(p => p.week === week);
 };
 
+// --- WRITE OPERATIONS (Always acting on Current User) ---
+
 export const saveStats = (stats: UserStats) => {
-  localStorage.setItem(STORAGE_KEY_STATS, JSON.stringify(stats));
+  const key = getKey(BASE_KEYS.STATS);
+  localStorage.setItem(key, JSON.stringify(stats));
 };
 
 export const saveActivity = (log: ActivityLog) => {
   const history = getActivityHistory();
-  localStorage.setItem(STORAGE_KEY_LOGS, JSON.stringify([log, ...history]));
+  const key = getKey(BASE_KEYS.LOGS);
+  localStorage.setItem(key, JSON.stringify([log, ...history]));
 };
 
 export const saveNotebookEntry = (entry: NoteEntry) => {
     const entries = getNotebookEntries();
-    localStorage.setItem(STORAGE_KEY_NOTEBOOK, JSON.stringify([entry, ...entries]));
+    const key = getKey(BASE_KEYS.NOTEBOOK);
+    localStorage.setItem(key, JSON.stringify([entry, ...entries]));
 };
 
 export const saveLabCompletion = (labId: string) => {
     const labs = getCompletedLabs();
     if (!labs.includes(labId)) {
-        localStorage.setItem(STORAGE_KEY_LABS, JSON.stringify([...labs, labId]));
+        const key = getKey(BASE_KEYS.LABS);
+        localStorage.setItem(key, JSON.stringify([...labs, labId]));
     }
 };
 
 export const saveLabSubmission = (labId: string, output: string) => {
     const submissions = getLabSubmissions();
     submissions[labId] = output;
-    localStorage.setItem(STORAGE_KEY_LAB_SUBMISSIONS, JSON.stringify(submissions));
+    const key = getKey(BASE_KEYS.LAB_SUBMISSIONS);
+    localStorage.setItem(key, JSON.stringify(submissions));
 };
 
 export const saveBlogPost = (post: BlogPost) => {
     const posts = getBlogPosts();
     const otherPosts = posts.filter(p => p.week !== post.week);
-    localStorage.setItem(STORAGE_KEY_BLOGS, JSON.stringify([post, ...otherPosts]));
+    const key = getKey(BASE_KEYS.BLOGS);
+    localStorage.setItem(key, JSON.stringify([post, ...otherPosts]));
 };
 
 export const resetProgress = (): UserStats => {
-    localStorage.clear();
+    const currentUser = getCurrentUser();
+    if (currentUser) {
+        // Clear only this user's data
+        Object.values(BASE_KEYS).forEach(base => {
+             localStorage.removeItem(`${currentUser.id}_${base}`);
+        });
+    }
     return INITIAL_STATS;
 };
+
+// --- LOGIC ---
 
 export const calculateLevel = (currentXp: number): number => {
   let level = 1;
@@ -147,16 +193,25 @@ export const logActivity = (type: ActivityType, description: string, weekId?: nu
   return { newStats, xpGained };
 };
 
-// --- New Helper Functions for Workflow Enforcements ---
-
 export const getStudySessionsForWeek = (weekId: number): number => {
     const entries = getNotebookEntries();
     return entries.filter(e => e.week === weekId).length;
 };
 
-export const hasBlogForWeek = (weekId: number): boolean => {
-    // Check both activity log AND actual saved blog presence for robustness
-    const hasLog = getActivityHistory().some(log => log.type === ActivityType.BLOG_POST && log.weekId === weekId);
-    const hasPost = !!getBlogPostForWeek(weekId);
-    return hasLog || hasPost;
+// --- Leaderboard & Multi-User Logic ---
+
+export interface LeaderboardEntry {
+    user: UserProfile;
+    stats: UserStats;
+}
+
+export const getLeaderboardData = (): LeaderboardEntry[] => {
+    const users = getUsers();
+    const leaderboard: LeaderboardEntry[] = users.map(user => {
+        const stats = getStoredStats(user.id);
+        return { user, stats };
+    });
+
+    // Sort by XP Descending
+    return leaderboard.sort((a, b) => b.stats.xp - a.stats.xp);
 };

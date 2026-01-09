@@ -435,5 +435,5 @@ export const INITIAL_STATS = {
   totalStudyHours: 0,
   sessionsCompleted: 0,
   projectsCompleted: 0,
-  certificationsEarned: 0,
+  certificationsEarned: 0
 };
