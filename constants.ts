@@ -10,6 +10,7 @@ export const XP_VALUES: Record<ActivityType, number> = {
   [ActivityType.BLOG_POST]: 75,
   [ActivityType.COMMUNITY_HELP]: 25,
   [ActivityType.GITHUB_COMMIT]: 30,
+  [ActivityType.QUIZ_COMPLETION]: 150,
 };
 
 export const LEVEL_THRESHOLDS = [

@@ -37,6 +37,7 @@ export enum ActivityType {
   BLOG_POST = 'BLOG_POST',
   COMMUNITY_HELP = 'COMMUNITY_HELP',
   GITHUB_COMMIT = 'GITHUB_COMMIT',
+  QUIZ_COMPLETION = 'QUIZ_COMPLETION',
 }
 
 export interface Achievement {

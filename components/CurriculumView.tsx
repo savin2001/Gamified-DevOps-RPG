@@ -1,10 +1,19 @@
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { CURRICULUM_DATA } from '../constants';
-import { CheckCircle2, Circle, Lock } from 'lucide-react';
+import { CheckCircle2, Circle, Lock, Brain, Trophy } from 'lucide-react';
 import { CurriculumWeek } from '../types';
+import QuizModal from './QuizModal';
+import { getQuizResults } from '../services/gamificationService';
 
 const CurriculumView: React.FC = () => {
+  const [activeQuiz, setActiveQuiz] = useState<{topic: string, weekId: number} | null>(null);
+  const [quizResults, setQuizResults] = useState<Record<number, number>>({});
+
+  useEffect(() => {
+      setQuizResults(getQuizResults());
+  }, [activeQuiz]); // Refresh when quiz closes
+
   const phases = useMemo(() => {
     const grouped: Record<number, CurriculumWeek[]> = {};
     CURRICULUM_DATA.forEach(week => {
@@ -46,40 +55,62 @@ const CurriculumView: React.FC = () => {
                         </h4>
                         
                         <div className="space-y-3">
-                            {phases[phaseId].map((week) => (
-                                <div key={week.id} className="group relative bg-white/5 rounded-xl p-4 border border-white/5 hover:bg-white/10 transition-all hover:translate-x-1">
-                                    <div className="flex items-start gap-4">
-                                        <div className="mt-1">
-                                            {week.isCompleted ? (
-                                                <CheckCircle2 className="w-5 h-5 text-green-500" />
-                                            ) : week.id === 1 ? (
-                                                <div className="w-5 h-5 rounded-full border-2 border-blue-500 flex items-center justify-center">
-                                                    <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></div>
-                                                </div>
-                                            ) : (
-                                                <Circle className="w-5 h-5 text-gray-700 group-hover:text-gray-500 transition-colors" />
-                                            )}
-                                        </div>
-                                        <div className="flex-1">
-                                            <div className="flex flex-wrap justify-between items-start gap-2">
-                                                <h5 className={`font-medium ${week.isCompleted || week.id === 1 ? 'text-white' : 'text-gray-500'}`}>Week {week.id}: {week.title}</h5>
-                                                {week.projects && (
-                                                    <span className="text-[10px] bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded border border-purple-500/30">
-                                                        PROJECT
-                                                    </span>
+                            {phases[phaseId].map((week) => {
+                                const quizPassed = (quizResults[week.id] || 0) >= 80;
+                                return (
+                                    <div key={week.id} className="group relative bg-white/5 rounded-xl p-4 border border-white/5 hover:bg-white/10 transition-all hover:translate-x-1">
+                                        <div className="flex items-start gap-4">
+                                            <div className="mt-1">
+                                                {week.isCompleted ? (
+                                                    <CheckCircle2 className="w-5 h-5 text-green-500" />
+                                                ) : week.id === 1 ? (
+                                                    <div className="w-5 h-5 rounded-full border-2 border-blue-500 flex items-center justify-center">
+                                                        <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></div>
+                                                    </div>
+                                                ) : (
+                                                    <Circle className="w-5 h-5 text-gray-700 group-hover:text-gray-500 transition-colors" />
                                                 )}
                                             </div>
-                                            <div className="flex flex-wrap gap-2 mt-2 opacity-60 group-hover:opacity-100 transition-opacity">
-                                                {week.topics.slice(0, 3).map((topic, i) => (
-                                                    <span key={i} className="text-[10px] text-gray-400">
-                                                        • {topic}
-                                                    </span>
-                                                ))}
+                                            <div className="flex-1">
+                                                <div className="flex flex-wrap justify-between items-start gap-2">
+                                                    <div>
+                                                        <h5 className={`font-medium ${week.isCompleted || week.id === 1 ? 'text-white' : 'text-gray-500'}`}>Week {week.id}: {week.title}</h5>
+                                                        <div className="flex flex-wrap gap-2 mt-2 opacity-60 group-hover:opacity-100 transition-opacity">
+                                                            {week.topics.slice(0, 3).map((topic, i) => (
+                                                                <span key={i} className="text-[10px] text-gray-400">
+                                                                    • {topic}
+                                                                </span>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    {/* Actions */}
+                                                    <div className="flex items-center gap-2">
+                                                        {week.projects && (
+                                                            <span className="text-[10px] bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded border border-purple-500/30">
+                                                                PROJECT
+                                                            </span>
+                                                        )}
+                                                        
+                                                        <button 
+                                                            onClick={() => setActiveQuiz({ topic: week.title, weekId: week.id })}
+                                                            className={`p-1.5 rounded-lg border transition-colors flex items-center gap-1 text-[10px] font-bold ${
+                                                                quizPassed 
+                                                                    ? 'bg-green-500/20 border-green-500/30 text-green-400' 
+                                                                    : 'bg-white/5 border-white/10 text-gray-500 hover:text-purple-400 hover:border-purple-500/30 hover:bg-purple-500/10'
+                                                            }`}
+                                                            title="AI Knowledge Check"
+                                                        >
+                                                            {quizPassed ? <Trophy className="w-3 h-3" /> : <Brain className="w-3 h-3" />}
+                                                            {quizPassed ? 'PASSED' : 'QUIZ'}
+                                                        </button>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                            ))}
+                                );
+                            })}
                         </div>
                     </div>
                 )
@@ -88,6 +119,19 @@ const CurriculumView: React.FC = () => {
         
         {/* Bottom Fade */}
         <div className="absolute bottom-0 left-0 w-full h-24 bg-gradient-to-t from-gray-900 via-gray-900/80 to-transparent pointer-events-none"></div>
+
+        {/* Quiz Modal */}
+        {activeQuiz && (
+            <QuizModal 
+                isOpen={!!activeQuiz}
+                onClose={() => setActiveQuiz(null)}
+                topic={activeQuiz.topic}
+                weekId={activeQuiz.weekId}
+                onComplete={() => {
+                    setQuizResults(getQuizResults()); // Refresh local state
+                }}
+            />
+        )}
     </div>
   );
 };

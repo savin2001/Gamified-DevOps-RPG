@@ -76,3 +76,42 @@ export const verifyGithubActivity = async (input: string): Promise<{ valid: bool
         return { valid: true, message: "Activity logged (Offline verification)" };
     }
 };
+
+export interface QuizQuestion {
+    question: string;
+    options: string[];
+    correctIndex: number;
+    explanation: string;
+}
+
+export const generateQuiz = async (topic: string, week: number): Promise<QuizQuestion[]> => {
+    try {
+        const ai = getAiClient();
+        if (!ai) return [];
+
+        const response = await ai.models.generateContent({
+            model: 'gemini-3-flash-preview',
+            contents: `Generate a difficult 5-question multiple-choice quiz about: "${topic}".
+            Target Audience: DevOps Engineer student (Week ${week} of curriculum).
+            
+            Return ONLY a raw JSON array. No markdown formatting.
+            Structure:
+            [
+              {
+                "question": "string",
+                "options": ["string", "string", "string", "string"],
+                "correctIndex": number (0-3),
+                "explanation": "string (why the answer is correct)"
+              }
+            ]`,
+            config: {
+                responseMimeType: "application/json",
+            }
+        });
+        
+        return JSON.parse(response.text || '[]');
+    } catch (error) {
+        console.error("Gemini Quiz Error:", error);
+        return [];
+    }
+};

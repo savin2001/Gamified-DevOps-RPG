@@ -1,10 +1,11 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { ActivityType, NoteEntry } from '../types';
 import { logActivity, saveNotebookEntry, getNotebookEntries } from '../services/gamificationService';
-import { Save, Plus, Copy, Book, ArrowRight, ArrowLeft, Calendar, Clock, Brain, Code, Zap, Smile, Rocket, Coffee, AlertCircle, Target, ChevronDown, ChevronUp, CheckSquare, Link as LinkIcon, Trash, ExternalLink } from 'lucide-react';
+import { Save, Plus, Copy, Book, ArrowRight, ArrowLeft, Calendar, Clock, Brain, Code, Zap, Smile, Rocket, Coffee, AlertCircle, Target, ChevronDown, ChevronUp, CheckSquare, Link as LinkIcon, Trash, ExternalLink, Timer } from 'lucide-react';
 import SuccessModal from './SuccessModal';
+import FocusTimer, { FocusTimerHandle } from './FocusTimer';
 
 interface StudySessionProps {
   onActivityLogged: () => void;
@@ -27,6 +28,12 @@ const StudySession: React.FC<StudySessionProps> = ({ onActivityLogged }) => {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [expandedEntryId, setExpandedEntryId] = useState<string | null>(null);
 
+  // Timer & Automation State
+  const timerRef = useRef<FocusTimerHandle>(null);
+  const [trackedSeconds, setTrackedSeconds] = useState(0);
+  const [showBreakModal, setShowBreakModal] = useState(false);
+  const [breakType, setBreakType] = useState<'short' | 'long'>('short');
+
   // Wizard State
   const [currentStep, setCurrentStep] = useState(1);
   const totalSteps = 5;
@@ -40,7 +47,7 @@ const StudySession: React.FC<StudySessionProps> = ({ onActivityLogged }) => {
   const [mainTopic, setMainTopic] = useState('');
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [time, setTime] = useState('18:00');
-  const [duration, setDuration] = useState('1.5');
+  const [duration, setDuration] = useState('1.5'); // Default 1.5 hours
   
   // Step 2: Learning Content
   const [topics, setTopics] = useState<{title: string, notes: string}[]>([{ title: '', notes: '' }]);
@@ -99,6 +106,56 @@ const StudySession: React.FC<StudySessionProps> = ({ onActivityLogged }) => {
       setIsEditing(true);
       setCurrentStep(1);
       setMainTopic('');
+      
+      // Auto-start timer logic
+      setTrackedSeconds(0);
+      setDuration('1.5'); // Default goal
+      
+      // Slight delay to ensure ref is mounted
+      setTimeout(() => {
+          if (timerRef.current) {
+              timerRef.current.reset();
+              timerRef.current.start();
+          }
+      }, 100);
+  };
+
+  // --- Timer Callbacks ---
+  const handlePhaseComplete = (completedMode: 'focus' | 'break') => {
+      if (completedMode === 'focus') {
+          // Focus done -> Trigger break
+          setBreakType('short');
+          setShowBreakModal(true);
+          // Play notification sound if possible (omitted for strict code)
+      } else {
+          // Break done -> Trigger focus
+          // Just auto-restart focus or prompt? Let's prompt to be polite.
+          setShowBreakModal(true); 
+          setBreakType('long'); // Using 'long' here to denote "Back to Work" mode in UI logic
+      }
+  };
+
+  const confirmBreakPhase = () => {
+      setShowBreakModal(false);
+      if (timerRef.current) {
+          // If we just finished focus (breakType short), we start break
+          if (breakType === 'short') {
+            timerRef.current.setMode('break');
+          } else {
+            // We finished break, back to focus
+            timerRef.current.setMode('focus');
+          }
+      }
+  };
+
+  const handleTimerTick = (seconds: number) => {
+      setTrackedSeconds(seconds);
+      // Auto-update duration field if it's currently showing estimate
+      // Only update if > 0.1 hours
+      if (seconds > 300) {
+          const hours = (seconds / 3600).toFixed(1);
+          setDuration(hours);
+      }
   };
 
   // --- Handlers ---
@@ -153,9 +210,13 @@ const StudySession: React.FC<StudySessionProps> = ({ onActivityLogged }) => {
   };
 
   const handleSubmit = () => {
+    // Final duration calculation based on actual timer if it ran
+    const finalDuration = trackedSeconds > 600 ? (trackedSeconds / 3600).toFixed(1) : duration;
+
     const entry: NoteEntry = {
       id: Date.now().toString(),
-      week, day, date, time, duration,
+      week, day, date, time, 
+      duration: finalDuration,
       mainTopic: mainTopic || `Week ${week} Study`,
       status: 'Completed',
       // Allow topics that have content even if title is missing
@@ -186,6 +247,9 @@ const StudySession: React.FC<StudySessionProps> = ({ onActivityLogged }) => {
     
     setSessionScore(calculateSessionScore());
     setShowSuccessModal(true);
+    
+    // Stop Timer
+    if (timerRef.current) timerRef.current.pause();
   };
 
   const closeSuccessModal = () => {
@@ -310,7 +374,7 @@ ${resourcesSection}
                                 autoFocus
                             />
                         </div>
-                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                             <div>
                                 <label className={labelClasses}>Week</label>
                                 <input type="number" min="1" value={week} onChange={e => setWeek(Number(e.target.value))} className={inputClasses} />
@@ -322,10 +386,6 @@ ${resourcesSection}
                             <div>
                                 <label className={labelClasses}>Date</label>
                                 <input type="date" value={date} onChange={e => setDate(e.target.value)} className={inputClasses} />
-                            </div>
-                            <div>
-                                <label className={labelClasses}>Duration (Hrs)</label>
-                                <input type="number" step="0.5" value={duration} onChange={e => setDuration(e.target.value)} className={inputClasses} />
                             </div>
                         </div>
                     </div>
@@ -563,7 +623,7 @@ ${resourcesSection}
   return (
     <div className="space-y-8 relative">
       {/* Header */}
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
         <div>
             <h2 className="text-3xl font-bold text-white tracking-tight flex items-center gap-3">
                 <span className="p-2 bg-gradient-to-br from-blue-500/20 to-purple-500/10 rounded-xl border border-white/10">
@@ -574,17 +634,24 @@ ${resourcesSection}
             <p className="text-gray-400 mt-1 ml-1 text-sm">Log your learning. Build your knowledge base.</p>
         </div>
         
-        {!isEditing && (
-          <button 
-            onClick={startSession}
-            className="group relative px-6 py-3 rounded-xl bg-blue-600 font-bold text-white overflow-hidden shadow-[0_0_20px_rgba(37,99,235,0.3)] transition-all hover:scale-105"
-          >
-            <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-purple-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-            <span className="relative flex items-center gap-2">
-                <Plus className="w-4 h-4" /> Start Session
-            </span>
-          </button>
-        )}
+        <div className="flex items-center gap-4">
+            <FocusTimer 
+                ref={timerRef} 
+                onPhaseComplete={handlePhaseComplete} 
+                onTick={handleTimerTick} 
+            />
+            {!isEditing && (
+                <button 
+                    onClick={startSession}
+                    className="group relative px-6 py-3 rounded-xl bg-blue-600 font-bold text-white overflow-hidden shadow-[0_0_20px_rgba(37,99,235,0.3)] transition-all hover:scale-105"
+                >
+                    <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-purple-500 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                    <span className="relative flex items-center gap-2">
+                        <Plus className="w-4 h-4" /> Start Session
+                    </span>
+                </button>
+            )}
+        </div>
       </div>
 
       {isEditing ? (
@@ -751,6 +818,37 @@ ${resourcesSection}
                 </div>
             ))}
         </div>
+      )}
+
+      {/* Break Time Modal */}
+      {showBreakModal && (
+          <div className="fixed inset-0 bg-black/90 z-[60] flex items-center justify-center p-4 backdrop-blur-sm animate-in fade-in">
+              <div className="bg-gray-900 border border-white/10 p-8 rounded-3xl max-w-md w-full text-center relative overflow-hidden">
+                  <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-green-500"></div>
+                  
+                  <div className="mb-6 flex justify-center">
+                      <div className={`p-6 rounded-full ${breakType === 'short' ? 'bg-green-500/20' : 'bg-blue-500/20'} animate-pulse`}>
+                        {breakType === 'short' ? <Coffee className="w-12 h-12 text-green-400" /> : <Zap className="w-12 h-12 text-blue-400" />}
+                      </div>
+                  </div>
+                  
+                  <h3 className="text-2xl font-bold text-white mb-2">
+                      {breakType === 'short' ? 'Time for a Break!' : 'Back to Focus'}
+                  </h3>
+                  <p className="text-gray-400 mb-8 leading-relaxed">
+                      {breakType === 'short' 
+                        ? 'Great work! Take 5 minutes to stretch, hydrate, or walk around. Your brain needs to recharge.' 
+                        : 'Break is over. Let\'s get back into the flow state. You got this!'}
+                  </p>
+
+                  <button 
+                    onClick={confirmBreakPhase}
+                    className="w-full py-3 bg-white text-black font-bold rounded-xl hover:bg-gray-200 transition-colors"
+                  >
+                      {breakType === 'short' ? 'Start 5m Break' : 'Resume Session'}
+                  </button>
+              </div>
+          </div>
       )}
 
       <SuccessModal 

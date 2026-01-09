@@ -5,6 +5,7 @@ import { getCompletedLabs, logActivity, saveLabCompletion, getLabSubmissions, sa
 import { ActivityType } from '../types';
 import { Lock, Unlock, Code, CheckCircle2, Terminal, Eye, BookOpen, AlertTriangle, Play, Box, Save, History } from 'lucide-react';
 import SuccessModal from './SuccessModal';
+import FocusTimer from './FocusTimer';
 
 interface ProjectHubProps {
   onActivityLogged: () => void;
@@ -82,26 +83,29 @@ const ProjectHub: React.FC<ProjectHubProps> = ({ onActivityLogged }) => {
             <p className="text-gray-400 mt-1 ml-1 text-sm">Capstone challenges to prove your engineering skills.</p>
         </div>
         
-        <button 
-            onClick={() => setIsReviewMode(!isReviewMode)}
-            className={`flex items-center gap-2 px-4 py-2 rounded-full border transition-all ${
-                isReviewMode 
-                ? 'bg-yellow-500/10 border-yellow-500/30 text-yellow-400 hover:bg-yellow-500/20' 
-                : 'bg-white/5 border-white/10 text-gray-400 hover:text-white hover:bg-white/10'
-            }`}
-        >
-            {isReviewMode ? (
-                <>
-                    <Eye className="w-4 h-4" />
-                    <span className="text-xs font-bold uppercase tracking-wider">Review Mode</span>
-                </>
-            ) : (
-                <>
-                    <BookOpen className="w-4 h-4" />
-                    <span className="text-xs font-bold uppercase tracking-wider">Build Mode</span>
-                </>
-            )}
-        </button>
+        <div className="flex items-center gap-4">
+            <FocusTimer />
+            <button 
+                onClick={() => setIsReviewMode(!isReviewMode)}
+                className={`flex items-center gap-2 px-4 py-2 rounded-full border transition-all ${
+                    isReviewMode 
+                    ? 'bg-yellow-500/10 border-yellow-500/30 text-yellow-400 hover:bg-yellow-500/20' 
+                    : 'bg-white/5 border-white/10 text-gray-400 hover:text-white hover:bg-white/10'
+                }`}
+            >
+                {isReviewMode ? (
+                    <>
+                        <Eye className="w-4 h-4" />
+                        <span className="text-xs font-bold uppercase tracking-wider">Review Mode</span>
+                    </>
+                ) : (
+                    <>
+                        <BookOpen className="w-4 h-4" />
+                        <span className="text-xs font-bold uppercase tracking-wider">Build Mode</span>
+                    </>
+                )}
+            </button>
+        </div>
       </div>
 
       {activeProjectId ? (
@@ -222,7 +226,7 @@ const ProjectHub: React.FC<ProjectHubProps> = ({ onActivityLogged }) => {
                                         <button 
                                             onClick={() => handleCompleteProject(proj.id, proj.weekId)}
                                             disabled={output.length < 2}
-                                            className="bg-purple-600 hover:bg-purple-500 disabled:opacity-50 disabled:grayscale text-white font-bold px-8 py-3 rounded-lg transition-all shadow-[0_0_20px_rgba(147,51,234,0.4)] flex items-center gap-2"
+                                            className="bg-purple-600 hover:bg-purple-50 disabled:opacity-50 disabled:grayscale text-white font-bold px-8 py-3 rounded-lg transition-all shadow-[0_0_20px_rgba(147,51,234,0.4)] flex items-center gap-2"
                                         >
                                             <CheckCircle2 className="w-4 h-4" /> 
                                             {isPreviouslyCompleted ? 'Redeploy' : 'Verify Deployment'}

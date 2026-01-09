@@ -5,6 +5,7 @@ import { getCompletedLabs, logActivity, saveLabCompletion, getLabSubmissions, sa
 import { ActivityType } from '../types';
 import { Lock, Unlock, Beaker, CheckCircle2, Terminal, Eye, BookOpen, AlertCircle, Play, Save, History } from 'lucide-react';
 import SuccessModal from './SuccessModal';
+import FocusTimer from './FocusTimer';
 
 interface LabHubProps {
   onActivityLogged: () => void;
@@ -78,26 +79,29 @@ const LabHub: React.FC<LabHubProps> = ({ onActivityLogged }) => {
             <p className="text-gray-400 mt-1 ml-1 text-sm">Simulated environments for practical application.</p>
         </div>
         
-        <button 
-            onClick={() => setIsReviewMode(!isReviewMode)}
-            className={`flex items-center gap-2 px-4 py-2 rounded-full border transition-all ${
-                isReviewMode 
-                ? 'bg-yellow-500/10 border-yellow-500/30 text-yellow-400 hover:bg-yellow-500/20' 
-                : 'bg-white/5 border-white/10 text-gray-400 hover:text-white hover:bg-white/10'
-            }`}
-        >
-            {isReviewMode ? (
-                <>
-                    <Eye className="w-4 h-4" />
-                    <span className="text-xs font-bold uppercase tracking-wider">Review Mode</span>
-                </>
-            ) : (
-                <>
-                    <BookOpen className="w-4 h-4" />
-                    <span className="text-xs font-bold uppercase tracking-wider">Student Mode</span>
-                </>
-            )}
-        </button>
+        <div className="flex items-center gap-4">
+            <FocusTimer />
+            <button 
+                onClick={() => setIsReviewMode(!isReviewMode)}
+                className={`flex items-center gap-2 px-4 py-2 rounded-full border transition-all ${
+                    isReviewMode 
+                    ? 'bg-yellow-500/10 border-yellow-500/30 text-yellow-400 hover:bg-yellow-500/20' 
+                    : 'bg-white/5 border-white/10 text-gray-400 hover:text-white hover:bg-white/10'
+                }`}
+            >
+                {isReviewMode ? (
+                    <>
+                        <Eye className="w-4 h-4" />
+                        <span className="text-xs font-bold uppercase tracking-wider">Review Mode</span>
+                    </>
+                ) : (
+                    <>
+                        <BookOpen className="w-4 h-4" />
+                        <span className="text-xs font-bold uppercase tracking-wider">Student Mode</span>
+                    </>
+                )}
+            </button>
+        </div>
       </div>
 
       {activeLabId ? (
@@ -304,7 +308,7 @@ const LabHub: React.FC<LabHubProps> = ({ onActivityLogged }) => {
                             !canEnter ? 'bg-white/5 text-gray-600 cursor-not-allowed' :
                             isReviewMode ? 'bg-yellow-500/10 text-yellow-400 hover:bg-yellow-500/20' :
                             isCompleted ? 'bg-green-500/10 text-green-400 hover:bg-green-500/20' :
-                            isInProgress ? 'bg-blue-600 text-white hover:bg-blue-500 shadow-lg' :
+                            isInProgress ? 'bg-blue-600 text-white hover:bg-blue-50 shadow-lg' :
                             'bg-white text-black hover:bg-blue-50 shadow-lg shadow-white/10'
                         }`}
                     >

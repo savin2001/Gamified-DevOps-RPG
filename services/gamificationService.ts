@@ -16,7 +16,8 @@ const BASE_KEYS = {
     NOTEBOOK: 'notebook',
     LABS: 'labs',
     LAB_SUBMISSIONS: 'lab_submissions',
-    BLOGS: 'blogs'
+    BLOGS: 'blogs',
+    QUIZZES: 'quizzes'
 };
 
 export const getStoredStats = (userId?: string): UserStats => {
@@ -74,6 +75,14 @@ export const getBlogPostForWeek = (week: number, userId?: string): BlogPost | un
     return posts.find(p => p.week === week);
 };
 
+export const getQuizResults = (userId?: string): Record<number, number> => {
+    try {
+        const key = getKey(BASE_KEYS.QUIZZES, userId);
+        const stored = localStorage.getItem(key);
+        return stored ? JSON.parse(stored) : {};
+    } catch (e) { return {}; }
+};
+
 // --- WRITE OPERATIONS (Always acting on Current User) ---
 
 export const saveStats = (stats: UserStats) => {
@@ -113,6 +122,16 @@ export const saveBlogPost = (post: BlogPost) => {
     const otherPosts = posts.filter(p => p.week !== post.week);
     const key = getKey(BASE_KEYS.BLOGS);
     localStorage.setItem(key, JSON.stringify([post, ...otherPosts]));
+};
+
+export const saveQuizResult = (weekId: number, score: number) => {
+    const results = getQuizResults();
+    // Only overwrite if score is higher
+    if ((results[weekId] || 0) < score) {
+        results[weekId] = score;
+        const key = getKey(BASE_KEYS.QUIZZES);
+        localStorage.setItem(key, JSON.stringify(results));
+    }
 };
 
 export const resetProgress = (): UserStats => {
