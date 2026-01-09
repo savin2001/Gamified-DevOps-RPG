@@ -1,5 +1,5 @@
 
-import { UserStats, ActivityLog, ActivityType, Achievement, NoteEntry } from '../types';
+import { UserStats, ActivityLog, ActivityType, Achievement, NoteEntry, BlogPost } from '../types';
 import { XP_VALUES, LEVEL_THRESHOLDS, INITIAL_STATS } from '../constants';
 
 const STORAGE_KEY_STATS = 'devops_quest_stats';
@@ -7,6 +7,7 @@ const STORAGE_KEY_LOGS = 'devops_quest_logs';
 const STORAGE_KEY_NOTEBOOK = 'devops_quest_notebook';
 const STORAGE_KEY_LABS = 'devops_quest_labs';
 const STORAGE_KEY_LAB_SUBMISSIONS = 'devops_quest_lab_submissions';
+const STORAGE_KEY_BLOGS = 'devops_quest_blogs';
 
 export const getStoredStats = (): UserStats => {
   const stored = localStorage.getItem(STORAGE_KEY_STATS);
@@ -31,6 +32,16 @@ export const getCompletedLabs = (): string[] => {
 export const getLabSubmissions = (): Record<string, string> => {
     const stored = localStorage.getItem(STORAGE_KEY_LAB_SUBMISSIONS);
     return stored ? JSON.parse(stored) : {};
+};
+
+export const getBlogPosts = (): BlogPost[] => {
+    const stored = localStorage.getItem(STORAGE_KEY_BLOGS);
+    return stored ? JSON.parse(stored) : [];
+};
+
+export const getBlogPostForWeek = (week: number): BlogPost | undefined => {
+    const posts = getBlogPosts();
+    return posts.find(p => p.week === week);
 };
 
 export const saveStats = (stats: UserStats) => {
@@ -58,6 +69,12 @@ export const saveLabSubmission = (labId: string, output: string) => {
     const submissions = getLabSubmissions();
     submissions[labId] = output;
     localStorage.setItem(STORAGE_KEY_LAB_SUBMISSIONS, JSON.stringify(submissions));
+};
+
+export const saveBlogPost = (post: BlogPost) => {
+    const posts = getBlogPosts();
+    const otherPosts = posts.filter(p => p.week !== post.week);
+    localStorage.setItem(STORAGE_KEY_BLOGS, JSON.stringify([post, ...otherPosts]));
 };
 
 export const resetProgress = (): UserStats => {
@@ -138,6 +155,8 @@ export const getStudySessionsForWeek = (weekId: number): number => {
 };
 
 export const hasBlogForWeek = (weekId: number): boolean => {
-    const logs = getActivityHistory();
-    return logs.some(log => log.type === ActivityType.BLOG_POST && log.weekId === weekId);
+    // Check both activity log AND actual saved blog presence for robustness
+    const hasLog = getActivityHistory().some(log => log.type === ActivityType.BLOG_POST && log.weekId === weekId);
+    const hasPost = !!getBlogPostForWeek(weekId);
+    return hasLog || hasPost;
 };

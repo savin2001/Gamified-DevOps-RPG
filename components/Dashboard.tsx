@@ -2,7 +2,7 @@
 import React from 'react';
 import { UserStats } from '../types';
 import { LEVEL_THRESHOLDS, LEVEL_TITLES } from '../constants';
-import { Zap, Trophy, Clock, BookOpen, Flame } from 'lucide-react';
+import { Zap, Trophy, Clock, BookOpen, Flame, Activity } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 interface DashboardProps {
@@ -17,101 +17,130 @@ const Dashboard: React.FC<DashboardProps> = ({ stats, xpHistory }) => {
 
   return (
     <div className="space-y-6">
-      {/* Hero Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-devops-card p-6 rounded-xl border border-gray-700 shadow-lg">
-          <div className="flex justify-between items-start">
-            <div>
-              <p className="text-gray-400 text-sm font-medium">Current Level</p>
-              <h3 className="text-2xl font-bold text-white mt-1">{stats.level}</h3>
-              <p className="text-devops-accent text-sm mt-1">{LEVEL_TITLES[stats.level - 1]}</p>
+      {/* Bento Grid Layout */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        
+        {/* Main Level Card */}
+        <div className="col-span-2 bg-gradient-to-br from-blue-900/40 to-indigo-900/20 backdrop-blur-xl p-6 rounded-3xl border border-blue-500/20 shadow-lg relative overflow-hidden group">
+          <div className="absolute top-0 right-0 p-24 bg-blue-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 group-hover:bg-blue-500/20 transition-all duration-700"></div>
+          
+          <div className="relative z-10">
+            <div className="flex justify-between items-start mb-4">
+                <div>
+                    <h3 className="text-3xl font-bold text-white tracking-tight">{stats.level}</h3>
+                    <p className="text-blue-300 text-sm font-medium uppercase tracking-wider">{LEVEL_TITLES[stats.level - 1]}</p>
+                </div>
+                <div className="p-3 bg-blue-500/20 rounded-2xl border border-blue-500/30">
+                  <Trophy className="w-6 h-6 text-blue-400 drop-shadow-[0_0_8px_rgba(96,165,250,0.5)]" />
+                </div>
             </div>
-            <div className="p-3 bg-blue-500/10 rounded-lg">
-              <Trophy className="w-6 h-6 text-blue-400" />
-            </div>
-          </div>
-          <div className="mt-4">
-            <div className="flex justify-between text-xs text-gray-400 mb-1">
-              <span>{stats.xp} XP</span>
-              <span>{nextLevelXp} XP</span>
-            </div>
-            <div className="w-full bg-gray-700 rounded-full h-2">
-              <div 
-                className="bg-gradient-to-r from-blue-500 to-cyan-400 h-2 rounded-full transition-all duration-500"
-                style={{ width: `${Math.min(levelProgress, 100)}%` }}
-              ></div>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-devops-card p-6 rounded-xl border border-gray-700 shadow-lg">
-          <div className="flex justify-between items-start">
-            <div>
-              <p className="text-gray-400 text-sm font-medium">Study Streak</p>
-              <h3 className="text-2xl font-bold text-white mt-1">{stats.streak} Days</h3>
-              <p className="text-gray-400 text-xs mt-1">Keep it burning!</p>
-            </div>
-            <div className="p-3 bg-orange-500/10 rounded-lg">
-              <Flame className={`w-6 h-6 ${stats.streak > 0 ? 'text-orange-500' : 'text-gray-500'}`} />
-            </div>
-          </div>
-          <div className="mt-4 flex gap-1">
-            {[...Array(7)].map((_, i) => (
-              <div 
-                key={i} 
-                className={`h-2 flex-1 rounded-full ${i < (stats.streak % 7) || (stats.streak > 0 && i === 0 && stats.streak % 7 === 0) ? 'bg-orange-500' : 'bg-gray-700'}`}
-              ></div>
-            ))}
-          </div>
-        </div>
-
-        <div className="bg-devops-card p-6 rounded-xl border border-gray-700 shadow-lg">
-          <div className="flex justify-between items-start">
-            <div>
-              <p className="text-gray-400 text-sm font-medium">Total Hours</p>
-              <h3 className="text-2xl font-bold text-white mt-1">{stats.totalStudyHours}h</h3>
-              <p className="text-devops-success text-xs mt-1">Invested in future</p>
-            </div>
-            <div className="p-3 bg-green-500/10 rounded-lg">
-              <Clock className="w-6 h-6 text-green-400" />
+            
+            <div className="space-y-2">
+                <div className="flex justify-between text-xs text-blue-200/60 font-mono">
+                    <span>{stats.xp} XP</span>
+                    <span>{nextLevelXp} XP</span>
+                </div>
+                <div className="w-full bg-black/40 rounded-full h-3 border border-blue-500/20 overflow-hidden">
+                    <div 
+                        className="bg-gradient-to-r from-blue-600 via-cyan-400 to-white h-full rounded-full transition-all duration-1000 shadow-[0_0_15px_rgba(34,211,238,0.5)]"
+                        style={{ width: `${Math.min(levelProgress, 100)}%` }}
+                    ></div>
+                </div>
+                <p className="text-[10px] text-right text-blue-400/80 animate-pulse">Next Rank: {LEVEL_TITLES[stats.level] || 'Max Level'}</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-devops-card p-6 rounded-xl border border-gray-700 shadow-lg">
-          <div className="flex justify-between items-start">
-            <div>
-              <p className="text-gray-400 text-sm font-medium">Sessions</p>
-              <h3 className="text-2xl font-bold text-white mt-1">{stats.sessionsCompleted}</h3>
-              <p className="text-purple-400 text-xs mt-1">Learning blocks</p>
-            </div>
-            <div className="p-3 bg-purple-500/10 rounded-lg">
-              <BookOpen className="w-6 h-6 text-purple-400" />
-            </div>
-          </div>
+        {/* Streak Card */}
+        <div className="bg-gradient-to-br from-orange-900/40 to-red-900/20 backdrop-blur-xl p-6 rounded-3xl border border-orange-500/20 shadow-lg relative overflow-hidden group">
+           <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10"></div>
+           <div className="absolute -bottom-10 -left-10 w-24 h-24 bg-orange-500/20 rounded-full blur-2xl"></div>
+
+           <div className="relative z-10 flex flex-col h-full justify-between">
+              <div className="flex justify-between items-start">
+                  <span className="text-orange-200/60 text-xs uppercase font-bold tracking-wider">Streak</span>
+                  <Flame className={`w-5 h-5 ${stats.streak > 0 ? 'text-orange-500 fill-orange-500' : 'text-gray-500'}`} />
+              </div>
+              <div>
+                  <h3 className="text-3xl font-bold text-white">{stats.streak} <span className="text-sm font-normal text-gray-400">Days</span></h3>
+                  <div className="flex gap-1 mt-2 h-1.5">
+                    {[...Array(7)].map((_, i) => (
+                        <div 
+                            key={i} 
+                            className={`flex-1 rounded-full ${i < (stats.streak % 7) || (stats.streak > 0 && i === 0 && stats.streak % 7 === 0) ? 'bg-orange-500 shadow-[0_0_5px_rgba(249,115,22,0.8)]' : 'bg-gray-800'}`}
+                        ></div>
+                    ))}
+                  </div>
+              </div>
+           </div>
+        </div>
+
+        {/* Stats Stack */}
+        <div className="grid grid-rows-2 gap-4">
+             <div className="bg-gray-900/40 backdrop-blur-xl p-4 rounded-3xl border border-white/5 flex items-center justify-between group hover:bg-white/5 transition-colors">
+                <div>
+                    <p className="text-gray-400 text-xs uppercase font-bold tracking-wider mb-1">Hours</p>
+                    <h3 className="text-xl font-bold text-white">{stats.totalStudyHours}</h3>
+                </div>
+                <div className="p-2.5 bg-green-500/10 rounded-xl border border-green-500/20 group-hover:scale-110 transition-transform">
+                    <Clock className="w-5 h-5 text-green-400" />
+                </div>
+             </div>
+             
+             <div className="bg-gray-900/40 backdrop-blur-xl p-4 rounded-3xl border border-white/5 flex items-center justify-between group hover:bg-white/5 transition-colors">
+                <div>
+                    <p className="text-gray-400 text-xs uppercase font-bold tracking-wider mb-1">Sessions</p>
+                    <h3 className="text-xl font-bold text-white">{stats.sessionsCompleted}</h3>
+                </div>
+                <div className="p-2.5 bg-purple-500/10 rounded-xl border border-purple-500/20 group-hover:scale-110 transition-transform">
+                    <BookOpen className="w-5 h-5 text-purple-400" />
+                </div>
+             </div>
         </div>
       </div>
 
-      {/* Chart */}
-      <div className="bg-devops-card p-6 rounded-xl border border-gray-700 shadow-lg">
-        <h3 className="text-lg font-semibold text-white mb-6">XP Progression</h3>
+      {/* Chart Area */}
+      <div className="bg-gray-900/40 backdrop-blur-xl p-8 rounded-3xl border border-white/5 shadow-2xl relative">
+        <div className="flex items-center gap-3 mb-6">
+            <div className="p-2 bg-blue-500/10 rounded-lg">
+                <Activity className="w-5 h-5 text-blue-400" />
+            </div>
+            <h3 className="text-lg font-bold text-white">XP Trajectory</h3>
+        </div>
+        
         <div className="h-64 w-full">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={xpHistory}>
               <defs>
                 <linearGradient id="colorXp" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3}/>
+                  <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.4}/>
                   <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
-              <XAxis dataKey="date" stroke="#9ca3af" fontSize={12} tickLine={false} axisLine={false} />
-              <YAxis stroke="#9ca3af" fontSize={12} tickLine={false} axisLine={false} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#ffffff10" vertical={false} />
+              <XAxis dataKey="date" stroke="#6b7280" fontSize={10} tickLine={false} axisLine={false} dy={10} />
+              <YAxis stroke="#6b7280" fontSize={10} tickLine={false} axisLine={false} dx={-10} />
               <Tooltip 
-                contentStyle={{ backgroundColor: '#1e293b', borderColor: '#4b5563', color: '#f3f4f6' }}
+                contentStyle={{ 
+                    backgroundColor: 'rgba(15, 23, 42, 0.9)', 
+                    borderColor: 'rgba(255,255,255,0.1)', 
+                    color: '#f3f4f6',
+                    borderRadius: '12px',
+                    backdropFilter: 'blur(10px)',
+                    boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                }}
                 itemStyle={{ color: '#60a5fa' }}
+                cursor={{ stroke: 'rgba(255,255,255,0.1)', strokeWidth: 2 }}
               />
-              <Area type="monotone" dataKey="xp" stroke="#3b82f6" fillOpacity={1} fill="url(#colorXp)" />
+              <Area 
+                type="monotone" 
+                dataKey="xp" 
+                stroke="#3b82f6" 
+                strokeWidth={3}
+                fillOpacity={1} 
+                fill="url(#colorXp)" 
+                animationDuration={1500}
+              />
             </AreaChart>
           </ResponsiveContainer>
         </div>

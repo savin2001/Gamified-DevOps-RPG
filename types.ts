@@ -106,6 +106,15 @@ export interface NoteEntry {
   handsOnDescription?: string;
 }
 
+export interface BlogPost {
+  id: string;
+  week: number;
+  title: string;
+  content: string;
+  githubUrl: string;
+  timestamp: string;
+}
+
 export interface ChatMessage {
   id: string;
   role: 'user' | 'model';
