@@ -176,13 +176,16 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
                         >
                             <Zap className="w-5 h-5 fill-current" aria-hidden="true" /> Start Your Quest
                         </button>
-                        <a href="#features" className={`w-full sm:w-auto px-10 py-5 rounded-2xl font-bold text-lg transition-all border flex items-center justify-center gap-2 ${
-                            isDark 
-                            ? 'bg-white/5 border-white/10 hover:bg-white/10 text-white hover:border-white/20' 
-                            : 'bg-white border-slate-200 hover:bg-slate-50 text-slate-700 shadow-lg shadow-slate-200/50'
-                        }`}>
+                        <button 
+                            onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}
+                            className={`w-full sm:w-auto px-10 py-5 rounded-2xl font-bold text-lg transition-all border flex items-center justify-center gap-2 ${
+                                isDark 
+                                ? 'bg-white/5 border-white/10 hover:bg-white/10 text-white hover:border-white/20' 
+                                : 'bg-white border-slate-200 hover:bg-slate-50 text-slate-700 shadow-lg shadow-slate-200/50'
+                            }`}
+                        >
                             Explore Features
-                        </a>
+                        </button>
                     </div>
                  </div>
             </section>
@@ -263,11 +266,11 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
                       </div>
                       
                       {/* Content Preview Mockup */}
-                      <div className={`mt-14 rounded-2xl overflow-hidden aspect-[16/10] relative group border ${isDark ? 'bg-[#030712] border-white/5' : 'bg-slate-50 border-slate-200'}`}>
+                      <div className={`mt-14 rounded-2xl overflow-hidden h-[600px] md:h-auto md:aspect-[16/10] relative group border ${isDark ? 'bg-[#030712] border-white/5' : 'bg-slate-50 border-slate-200'}`}>
                             {/* Render Actual Dashboard as Preview (Scaled Down) */}
-                            <div className="absolute inset-0 overflow-y-auto overflow-x-hidden scrollbar-thin scrollbar-thumb-white/10 p-4 md:p-8" aria-hidden="true">
+                            <div className="absolute inset-0 overflow-y-auto overflow-x-hidden scrollbar-thin scrollbar-thumb-white/10 p-2 md:p-8" aria-hidden="true">
                                  {/* Wrapper to ensure dark mode styles of dashboard work even in light mode landing */}
-                                 <div className="bg-[#030712] p-6 rounded-3xl min-h-full">
+                                 <div className="bg-[#030712] p-4 md:p-6 rounded-3xl min-h-full">
                                     <Dashboard stats={PREVIEW_STATS} xpHistory={PREVIEW_HISTORY} />
                                  </div>
                             </div>
