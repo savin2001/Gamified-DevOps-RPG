@@ -37,29 +37,58 @@
 
 ## 🛠️ Tech Stack
 
-- **Frontend**: React 18, TypeScript, Vite
-- **Styling**: Tailwind CSS with a custom "Cyber-Glass" aesthetic
-- **AI/LLM**: Google GenAI SDK (`@google/genai`) - *Gemini 1.5 Flash & Pro*
-- **Visualization**: Recharts for XP velocity tracking
-- **Persistence**: Browser `LocalStorage` (Privacy-focused, no backend required)
-- **Icons**: Lucide React
+### Frontend (Client)
+- **Framework**: React 18, TypeScript, Vite
+- **Styling**: Tailwind CSS, Lucide React
+- **State**: React Hooks (Local)
+- **AI**: Google GenAI SDK
+
+### Backend (Server) - *New!*
+- **Runtime**: Node.js, Express
+- **Language**: TypeScript
+- **Database**: PostgreSQL
+- **ORM**: Prisma
+- **Auth**: JWT & Bcrypt
 
 ---
 
 ## 🚀 Getting Started
 
-### 1. Installation
+### 1. Frontend Setup
 
 ```bash
-# Clone the repository
-git clone https://github.com/yourusername/devops-quest.git
-cd devops-quest
-
 # Install dependencies
 npm install
+
+# Run Frontend
+npm run dev
 ```
 
-### 2. Configuration
+### 2. Backend Setup (Local)
+
+To run the full-stack version with the database:
+
+1.  Navigate to the backend folder:
+    ```bash
+    cd backend
+    ```
+2.  Install dependencies:
+    ```bash
+    npm install
+    ```
+3.  Configure Environment:
+    - Copy `.env.example` to `.env`
+    - Update `DATABASE_URL` with your local PostgreSQL credentials.
+4.  Initialize Database:
+    ```bash
+    npx prisma migrate dev --name init
+    ```
+5.  Run Server:
+    ```bash
+    npm run dev
+    ```
+
+### 3. Configuration
 
 Create a `.env` file in the root directory (or rename `.env.example`):
 
@@ -68,12 +97,6 @@ API_KEY=your_google_gemini_api_key
 ```
 
 > **Note**: An API Key is required for the AI Mentor and Verification features. You can get one at [aistudio.google.com](https://aistudio.google.com).
-
-### 3. Run Application
-
-```bash
-npm run dev
-```
 
 ---
 
