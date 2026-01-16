@@ -10,6 +10,11 @@
 - **Streak Tracking**: Maintain daily discipline with visual streak tracking and motivation.
 - **Reward Mechanics**: Earn badges and XP for specific activities like Study Sessions (50 XP), Labs (100 XP), and Projects (200 XP).
 
+### 🔐 Authentication & Experience
+- **Quick Load Personas**: One-click access to pre-configured test accounts (SysAdmin, Cloud Architect, Jr. Dev, QA) for rapid testing and demoing.
+- **Smart Validation**: Custom, styled tooltips for form inputs that provide immediate feedback without breaking the immersive dark-mode aesthetic.
+- **Secure Sessions**: Full JWT-based authentication with bcrypt hashing and state persistence.
+
 ### 🧪 Lab & Project Hub
 - **Interactive Terminal**: Simulated environment to verify lab commands and "execute" infrastructure changes.
 - **Draft Mode**: Start a lab or project, save your progress, and resume later (`In Progress` state).
@@ -102,14 +107,15 @@ API_KEY=your_google_gemini_api_key
 
 ## 🧭 How to Use
 
-1.  **Dashboard**: Check your daily stats. If you haven't logged activity today, your streak is at risk!
-2.  **Study**: Use the **Study Session** logger to record videos watched or docs read.
-3.  **Labs**: Navigate to **Lab Hub**. 
+1.  **Login**: Use the **Quick Load** buttons to instantly populate credentials for a test persona (e.g., SysAdmin) and access the dashboard.
+2.  **Dashboard**: Check your daily stats. If you haven't logged activity today, your streak is at risk!
+3.  **Study**: Use the **Study Session** logger to record videos watched or docs read.
+4.  **Labs**: Navigate to **Lab Hub**. 
     - Follow the instructions.
     - Type the verification command in the terminal simulation.
     - Click **Execute & Complete**.
-4.  **Review**: Use the "Review Mode" toggle to look back at past labs without editing them.
-5.  **Publish**: At the end of the week, go to the **Blog & Commit** tab.
+5.  **Review**: Use the "Review Mode" toggle to look back at past labs without editing them.
+6.  **Publish**: At the end of the week, go to the **Blog & Commit** tab.
     - Write a summary title and reflection.
     - Paste your real GitHub repo link.
     - **View Artifacts**: Use the Inspector to copy your generated Study Log and Lab Report Markdown.
