@@ -8,6 +8,7 @@ import ProjectHub from './components/ProjectHub';
 import BlogHub from './components/BlogHub';
 import AiMentor from './components/AiMentor';
 import AuthView from './components/AuthView';
+import LandingPage from './components/LandingPage';
 import Leaderboard from './components/Leaderboard';
 import { UserStats, ActivityLog, UserProfile } from './types';
 import { getStoredStats, getActivityHistory, resetProgress } from './services/gamificationService';
@@ -20,6 +21,7 @@ const App: React.FC = () => {
   const [logs, setLogs] = useState<ActivityLog[]>([]);
   const [view, setView] = useState<'dashboard' | 'curriculum' | 'study' | 'labs' | 'projects' | 'blog' | 'leaderboard'>('dashboard');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [showLanding, setShowLanding] = useState(true);
 
   useEffect(() => {
     // Check for active session
@@ -28,6 +30,7 @@ const App: React.FC = () => {
         setUser(activeUser);
         setStats(getStoredStats(activeUser.id));
         setLogs(getActivityHistory(activeUser.id));
+        setShowLanding(false); // Skip landing if logged in
     }
   }, []);
 
@@ -36,6 +39,7 @@ const App: React.FC = () => {
       setStats(getStoredStats(loggedInUser.id));
       setLogs(getActivityHistory(loggedInUser.id));
       setView('dashboard');
+      setShowLanding(false);
   };
 
   const handleLogout = () => {
@@ -43,6 +47,7 @@ const App: React.FC = () => {
       setUser(null);
       setStats(null);
       setLogs([]);
+      setShowLanding(true); // Return to landing on logout
   };
 
   const refreshStats = () => {
@@ -62,7 +67,10 @@ const App: React.FC = () => {
   };
 
   if (!user) {
-      return <AuthView onLogin={handleLogin} />;
+      if (showLanding) {
+          return <LandingPage onStart={() => setShowLanding(false)} />;
+      }
+      return <AuthView onLogin={handleLogin} onBack={() => setShowLanding(true)} />;
   }
 
   const navItems = [

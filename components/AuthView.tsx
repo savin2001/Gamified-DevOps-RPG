@@ -2,13 +2,14 @@
 import React, { useState } from 'react';
 import { loginUser, registerUser } from '../services/authService';
 import { UserProfile } from '../types';
-import { Rocket, UserPlus, LogIn, ShieldCheck } from 'lucide-react';
+import { Rocket, UserPlus, LogIn, ShieldCheck, ArrowLeft } from 'lucide-react';
 
 interface AuthViewProps {
     onLogin: (user: UserProfile) => void;
+    onBack: () => void;
 }
 
-const AuthView: React.FC<AuthViewProps> = ({ onLogin }) => {
+const AuthView: React.FC<AuthViewProps> = ({ onLogin, onBack }) => {
     const [isLogin, setIsLogin] = useState(true);
     const [username, setUsername] = useState('');
     const [email, setEmail] = useState('');
@@ -44,6 +45,14 @@ const AuthView: React.FC<AuthViewProps> = ({ onLogin }) => {
              {/* Background Effects */}
             <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-purple-900/10 rounded-full blur-[120px] pointer-events-none"></div>
             <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-blue-900/10 rounded-full blur-[120px] pointer-events-none"></div>
+            
+            <button 
+                onClick={onBack}
+                className="absolute top-6 left-6 p-3 rounded-full bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white transition-all z-20 group"
+                title="Back to Home"
+            >
+                <ArrowLeft className="w-6 h-6 group-hover:-translate-x-1 transition-transform" />
+            </button>
 
             <div className="max-w-md w-full bg-gray-900/40 backdrop-blur-xl border border-white/10 rounded-3xl p-8 shadow-2xl relative z-10 animate-in zoom-in-95 duration-500">
                 <div className="text-center mb-8">
