@@ -1,6 +1,6 @@
 
-import React, { useState } from 'react';
-import { Rocket, Brain, Terminal, Trophy, Moon, Sun, ArrowRight, Code, Zap, ChevronRight, Layout, Activity, Star } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Rocket, Brain, Terminal, Trophy, Moon, Sun, ArrowRight, Code, Zap, ChevronRight, Layout, Activity, Star, Bot } from 'lucide-react';
 import Dashboard from './Dashboard';
 import { UserStats } from '../types';
 import Manifesto from './Manifesto';
@@ -32,18 +32,73 @@ const PREVIEW_HISTORY = [
     { date: 'Sun', xp: 3450 },
 ];
 
+const HERO_PHRASES = [
+    "Cloud Mastery",
+    "DevOps Excellence",
+    "Kubernetes Skills",
+    "Infrastructure as Code",
+    "CI/CD Pipelines",
+    "SRE Proficiency"
+];
+
 const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
   const [isDark, setIsDark] = useState(true);
   const [showManifesto, setShowManifesto] = useState(false);
+  const [phraseIndex, setPhraseIndex] = useState(0);
 
   const toggleTheme = () => setIsDark(!isDark);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+        setPhraseIndex((prev) => (prev + 1) % HERO_PHRASES.length);
+    }, 3000); // Cycle every 3 seconds
+    return () => clearInterval(interval);
+  }, []);
 
   if (showManifesto) {
       return <Manifesto onBack={() => setShowManifesto(false)} />;
   }
 
   return (
-    <div className={`min-h-screen transition-colors duration-500 font-sans selection:bg-blue-500/30 ${isDark ? 'bg-[#030712] text-white' : 'bg-slate-50 text-slate-900'}`}>
+    <div className={`min-h-screen transition-colors duration-500 font-sans selection:bg-blue-500/30 ${isDark ? 'bg-[#030712] text-white' : 'bg-slate-50 text-slate-900'} relative overflow-x-hidden`}>
+        <style>{`
+            @keyframes text-slide-up {
+                0% { transform: translateY(20px); opacity: 0; }
+                100% { transform: translateY(0); opacity: 1; }
+            }
+            @keyframes float-mascot {
+                0% { transform: translate(0, 0) rotate(0deg); }
+                25% { transform: translate(50px, 30px) rotate(5deg); }
+                50% { transform: translate(20px, 80px) rotate(-5deg); }
+                75% { transform: translate(-40px, 40px) rotate(3deg); }
+                100% { transform: translate(0, 0) rotate(0deg); }
+            }
+            @keyframes blink {
+                0%, 96%, 100% { transform: scaleY(1); }
+                98% { transform: scaleY(0.1); }
+            }
+        `}</style>
+
+        {/* Mascot - Floating in Background */}
+        <div className="absolute top-32 right-10 md:right-32 z-0 opacity-40 md:opacity-100 pointer-events-none hidden lg:block">
+            <div className="animate-[float-mascot_20s_ease-in-out_infinite]">
+                 <div className={`relative w-32 h-32 md:w-48 md:h-48 transition-colors duration-500 ${isDark ? 'text-blue-400' : 'text-blue-600'}`}>
+                      {/* Robot Body */}
+                      <Bot className="w-full h-full drop-shadow-[0_0_30px_rgba(59,130,246,0.4)]" />
+                      
+                      {/* Animated Eyes */}
+                      <div className="absolute top-[35%] left-[28%] w-2 h-2 md:w-3 md:h-3 bg-white rounded-full animate-[blink_4s_infinite_ease-in-out]"></div>
+                      <div className="absolute top-[35%] right-[28%] w-2 h-2 md:w-3 md:h-3 bg-white rounded-full animate-[blink_4s_infinite_ease-in-out]"></div>
+                      
+                      {/* Status Light */}
+                      <div className="absolute top-0 right-2 w-3 h-3 md:w-4 md:h-4 bg-green-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(34,197,94,0.8)] border-2 border-white/20"></div>
+
+                      {/* Thruster Flame */}
+                      <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 w-8 h-8 md:w-12 md:h-12 bg-gradient-to-t from-transparent to-orange-500 rounded-full blur-md opacity-60 animate-pulse"></div>
+                 </div>
+            </div>
+        </div>
+
         {/* Navbar */}
         <nav className={`fixed w-full z-50 backdrop-blur-xl border-b transition-colors duration-500 ${isDark ? 'border-white/5 bg-[#030712]/70' : 'border-slate-200 bg-white/70'}`}>
             <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
@@ -95,9 +150,14 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart }) => {
                     <span className="text-xs font-bold uppercase tracking-wider">v2.1 System Online</span>
                 </div>
 
-                <h1 className="text-5xl md:text-7xl lg:text-8xl font-extrabold tracking-tight mb-8 leading-tight">
+                <h1 className="text-5xl md:text-7xl lg:text-8xl font-extrabold tracking-tight mb-8 leading-tight min-h-[3.5em] md:min-h-[2.5em]">
                     Gamify Your Path to <br className="hidden md:block"/>
-                    <span className={`text-transparent bg-clip-text bg-gradient-to-r animate-gradient-x ${isDark ? 'from-blue-400 via-purple-400 to-pink-400' : 'from-blue-600 via-purple-600 to-pink-600'}`}>Cloud Mastery</span>
+                    <span 
+                        key={phraseIndex}
+                        className={`inline-block text-transparent bg-clip-text bg-gradient-to-r animate-[text-slide-up_0.5s_ease-out_forwards] ${isDark ? 'from-blue-400 via-purple-400 to-pink-400' : 'from-blue-600 via-purple-600 to-pink-600'}`}
+                    >
+                        {HERO_PHRASES[phraseIndex]}
+                    </span>
                 </h1>
 
                 <p className={`text-lg md:text-xl max-w-2xl mx-auto mb-10 leading-relaxed font-medium ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
