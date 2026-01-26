@@ -1,3 +1,4 @@
+
 import { UserProfile } from '../types';
 
 const API_URL = 'http://localhost:5000/api';
@@ -24,15 +25,26 @@ const request = async <T>(endpoint: string, options: RequestInit = {}): Promise<
 
   try {
     const response = await fetch(`${API_URL}${endpoint}`, config);
-    const data = await response.json();
+    
+    // Handle non-JSON responses (e.g., server crashes usually return HTML or text)
+    const contentType = response.headers.get("content-type");
+    let data;
+    if (contentType && contentType.indexOf("application/json") !== -1) {
+        data = await response.json();
+    } else {
+        data = { message: await response.text() };
+    }
 
     if (!response.ok) {
       throw new Error(data.message || 'API Request Failed');
     }
 
     return data as T;
-  } catch (error) {
-    console.error('API Error:', error);
+  } catch (error: any) {
+    // Only log if it's NOT a connection refused/network error (to keep console clean in offline mode)
+    if (error.name !== 'TypeError' && !error.message?.includes('Failed to fetch')) {
+        console.error('API Error:', error);
+    }
     throw error;
   }
 };
