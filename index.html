@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en" class="scroll-smooth">
   <head>
@@ -46,6 +47,7 @@
 
     <script>
       tailwind.config = {
+        darkMode: 'class', // Enable class-based dark mode
         theme: {
           extend: {
             fontFamily: {
@@ -54,12 +56,15 @@
             },
             colors: {
               devops: {
-                dark: '#0f172a',
-                card: '#1e293b',
-                accent: '#3b82f6',
-                success: '#10b981',
-                warning: '#f59e0b',
-                danger: '#ef4444',
+                // Banking/Fintech Dark Mode Palette
+                dark: '#020617',     // Very deep navy/black (Trust foundation)
+                card: '#0f172a',     // Slate blue card background (Stability)
+                accent: '#059669',   // Emerald Green (Growth/Safaricom reference)
+                secondary: '#1e3a8a',// Corporate Blue
+                gold: '#d97706',     // Ochre/Gold (Wealth/Premium status)
+                success: '#10b981',  // Emerald
+                warning: '#f59e0b',  // Amber
+                danger: '#ef4444',   // Red
               }
             }
           }
@@ -67,16 +72,16 @@
       }
     </script>
     <style>
+      /* Base styles handled by Tailwind classes in App.tsx now for universal theming */
       body {
-        background-color: #0f172a;
-        color: #f8fafc;
+        transition: background-color 0.3s ease, color 0.3s ease;
       }
       /* Custom scrollbar */
       ::-webkit-scrollbar {
         width: 8px;
       }
       ::-webkit-scrollbar-track {
-        background: #1e293b; 
+        background: transparent; 
       }
       ::-webkit-scrollbar-thumb {
         background: #475569; 
