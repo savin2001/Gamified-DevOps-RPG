@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { LAB_DATA } from '../constants';
 import { getCompletedLabs, logActivity, saveLabCompletion, getLabSubmissions, saveLabSubmission } from '../services/gamificationService';
 import { ActivityType } from '../types';
-import { Lock, Unlock, Code, CheckCircle2, Terminal, Eye, BookOpen, AlertTriangle, Play, Box, Save, History } from 'lucide-react';
+import { Lock, Unlock, Code, CheckCircle2, Terminal, Eye, BookOpen, AlertTriangle, Play, Box, Save, History, Loader2, XCircle } from 'lucide-react';
 import SuccessModal from './SuccessModal';
 import FocusTimer, { FocusTimerHandle } from './FocusTimer';
 
@@ -18,6 +18,9 @@ const ProjectHub: React.FC<ProjectHubProps> = ({ onActivityLogged }) => {
   const [output, setOutput] = useState('');
   const [isReviewMode, setIsReviewMode] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [isExecuting, setIsExecuting] = useState(false);
+  const [validationError, setValidationError] = useState<string | null>(null);
+  
   const timerRef = useRef<FocusTimerHandle>(null);
 
   useEffect(() => {
@@ -29,6 +32,7 @@ const ProjectHub: React.FC<ProjectHubProps> = ({ onActivityLogged }) => {
     if (activeProjectId) {
         timerRef.current?.reset();
         timerRef.current?.start();
+        setValidationError(null);
     } else {
         timerRef.current?.pause();
     }
@@ -45,8 +49,29 @@ const ProjectHub: React.FC<ProjectHubProps> = ({ onActivityLogged }) => {
     }
   }, [activeProjectId]);
 
-  const handleCompleteProject = (projId: string, weekId: number) => {
+  const handleCompleteProject = async (projId: string, weekId: number) => {
     if (isReviewMode) return;
+
+    setIsExecuting(true);
+    setValidationError(null);
+
+    // Find the project definition
+    const proj = Object.values(LAB_DATA).find(l => l.id === projId);
+
+    // Simulate Verification Delay
+    await new Promise(resolve => setTimeout(resolve, 1500));
+
+    if (proj) {
+        const expected = (proj.expectedOutput || '').toLowerCase();
+        const userOutput = output.toLowerCase();
+
+        // Validation Logic
+        if (!userOutput.includes(expected)) {
+            setValidationError(`Verification Failed: Infrastructure mismatch.\nExpected resource signature: "${proj.expectedOutput}"`);
+            setIsExecuting(false);
+            return;
+        }
+    }
 
     saveLabCompletion(projId);
     saveLabSubmission(projId, output);
@@ -60,6 +85,8 @@ const ProjectHub: React.FC<ProjectHubProps> = ({ onActivityLogged }) => {
         onActivityLogged();
         setShowSuccessModal(true);
     }
+    
+    setIsExecuting(false);
     setActiveProjectId(null);
     setOutput('');
   };
@@ -176,7 +203,8 @@ const ProjectHub: React.FC<ProjectHubProps> = ({ onActivityLogged }) => {
                                 onClick={() => { 
                                     if (!isReviewMode) handleSaveDraft(proj.id); 
                                     else setActiveProjectId(null);
-                                }}  
+                                }} 
+                                disabled={isExecuting}
                                 className="w-full text-xs text-slate-500 dark:text-gray-500 hover:text-slate-900 dark:hover:text-white transition-colors flex items-center justify-center gap-2"
                             >
                                 {isReviewMode ? '← Return to Hub' : '← Save Draft & Return'}
@@ -201,20 +229,40 @@ const ProjectHub: React.FC<ProjectHubProps> = ({ onActivityLogged }) => {
                              <div className="text-gray-500 mb-6">
                                  DevOps Quest Deployment Manager<br/>
                                  Target: {proj.title}<br/>
-                                 {isReviewMode ? 'System Status: READ_ONLY_MOUNT' : 'Initiating verification sequence...'}
+                                 {isExecuting ? 'Status: VERIFYING_INFRASTRUCTURE...' : isReviewMode ? 'Status: READ_ONLY_MOUNT' : 'Status: Ready to deploy'}
                              </div>
                              
-                             <div className={`flex-1 bg-black/50 border ${isReviewMode ? 'border-gold-500/10' : 'border-white/10'} rounded-xl p-6 relative overflow-hidden shadow-inner`}>
+                             <div className={`flex-1 bg-black/50 border ${isReviewMode ? 'border-gold-500/10' : validationError ? 'border-red-500/30' : 'border-white/10'} rounded-xl p-6 relative overflow-hidden shadow-inner`}>
                                  <div className="absolute top-3 right-3 text-[10px] text-navy-400 font-bold border border-navy-800 rounded px-2">DEPLOY LOGS</div>
                                  <textarea 
-                                    readOnly={isReviewMode}
+                                    readOnly={isReviewMode || isExecuting}
                                     value={output}
-                                    onChange={(e) => setOutput(e.target.value)}
-                                    className={`w-full h-full bg-transparent ${isReviewMode ? 'text-gray-500 cursor-not-allowed' : 'text-navy-300'} focus:outline-none resize-none leading-relaxed`}
+                                    onChange={(e) => {
+                                        setOutput(e.target.value);
+                                        if (validationError) setValidationError(null);
+                                    }}
+                                    className={`w-full h-full bg-transparent ${isReviewMode ? 'text-gray-500 cursor-not-allowed' : 'text-navy-300'} focus:outline-none resize-none leading-relaxed disabled:opacity-50`}
                                     placeholder={isReviewMode ? "Terminal input disabled in Review Mode." : `$ ${proj.verificationCommand || "aws verify-stack"}\n\n... waiting for resource output ...\n... ${proj.expectedOutput || "StackId: arn:aws:cloudformation..."}`}
                                     autoFocus={!isReviewMode}
                                  />
+                                 {isExecuting && (
+                                     <div className="absolute inset-0 bg-black/50 flex items-center justify-center backdrop-blur-[1px]">
+                                         <div className="flex items-center gap-2 text-brand-400">
+                                             <Loader2 className="w-5 h-5 animate-spin" />
+                                             <span>Verifying Cloud Resources...</span>
+                                         </div>
+                                     </div>
+                                 )}
                              </div>
+
+                             {validationError && (
+                                 <div className="mt-4 p-4 bg-red-900/20 border border-red-500/30 text-red-400 rounded-xl text-xs animate-in slide-in-from-top-1">
+                                     <div className="flex items-center gap-2 font-bold mb-1">
+                                         <XCircle className="w-4 h-4" /> Deployment Verification Failed
+                                     </div>
+                                     <pre className="whitespace-pre-wrap font-mono ml-6">{validationError}</pre>
+                                 </div>
+                             )}
                          </div>
 
                          <div className="p-6 border-t border-white/10 bg-navy-900/10 flex justify-between items-center gap-4">
@@ -231,17 +279,18 @@ const ProjectHub: React.FC<ProjectHubProps> = ({ onActivityLogged }) => {
                                     <>
                                         <button 
                                             onClick={() => handleSaveDraft(proj.id)}
-                                            className="px-4 py-3 rounded-lg border border-white/10 text-gray-400 hover:text-white hover:bg-white/5 text-xs font-bold transition-all flex items-center gap-2"
+                                            disabled={isExecuting}
+                                            className="px-4 py-3 rounded-lg border border-white/10 text-gray-400 hover:text-white hover:bg-white/5 text-xs font-bold transition-all flex items-center gap-2 disabled:opacity-50"
                                         >
                                             <Save className="w-4 h-4" /> Save Draft
                                         </button>
                                         <button 
                                             onClick={() => handleCompleteProject(proj.id, proj.weekId)}
-                                            disabled={output.length < 2}
+                                            disabled={output.length < 2 || isExecuting}
                                             className="bg-navy-600 hover:bg-navy-500 disabled:opacity-50 disabled:grayscale text-white font-bold px-8 py-3 rounded-lg transition-all shadow-md flex items-center gap-2"
                                         >
-                                            <CheckCircle2 className="w-4 h-4" /> 
-                                            {isPreviouslyCompleted ? 'Redeploy' : 'Verify Deployment'}
+                                            {isExecuting ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
+                                            {isExecuting ? 'Verifying...' : isPreviouslyCompleted ? 'Redeploy' : 'Verify Deployment'}
                                         </button>
                                     </>
                                 )}

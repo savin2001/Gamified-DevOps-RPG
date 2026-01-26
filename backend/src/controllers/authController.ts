@@ -1,3 +1,4 @@
+
 import { Request, Response } from 'express';
 // @ts-ignore
 import { PrismaClient } from '@prisma/client';
@@ -98,5 +99,32 @@ export const login = async (req: Request, res: Response) => {
   } catch (error) {
     console.error(error);
     (res as any).status(500).json({ message: 'Server error during login' });
+  }
+};
+
+export const getLeaderboard = async (req: Request, res: Response) => {
+  try {
+    const stats = await prisma.userStats.findMany({
+      take: 50,
+      orderBy: { xp: 'desc' },
+      include: {
+        user: {
+          select: { id: true, username: true, email: true, role: true, joinedAt: true }
+        }
+      }
+    });
+
+    const leaderboard = stats.map((stat: any) => ({
+      user: stat.user,
+      stats: {
+        ...stat,
+        userId: stat.user.id
+      }
+    }));
+
+    (res as any).json(leaderboard);
+  } catch (error) {
+    console.error(error);
+    (res as any).status(500).json({ message: 'Error fetching leaderboard' });
   }
 };

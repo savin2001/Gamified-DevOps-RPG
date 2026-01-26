@@ -159,8 +159,8 @@ const AiMentor: React.FC<AiMentorProps> = ({ userStats }) => {
             {/* Floating Button */}
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className={`group relative flex items-center justify-center w-14 h-14 rounded-full shadow-lg shadow-blue-500/20 text-white transition-all duration-500 hover:scale-110 active:scale-95 ${
-                    isOpen ? 'rotate-90 bg-slate-700 dark:bg-gray-700' : 'animate-[pulse_3s_ease-in-out_infinite] bg-gradient-to-tr from-blue-600 via-purple-600 to-indigo-600 bg-[length:200%_200%] animate-gradient-xy'
+                className={`group relative flex items-center justify-center w-14 h-14 rounded-full shadow-lg shadow-brand-500/40 text-white transition-all duration-500 hover:scale-110 active:scale-95 ${
+                    isOpen ? 'rotate-90 bg-slate-700 dark:bg-gray-700' : 'animate-[pulse_3s_ease-in-out_infinite] bg-gradient-to-tr from-brand-600 via-gold-500 to-brand-600 bg-[length:200%_200%] animate-gradient-xy'
                 }`}
                 style={{
                     backgroundSize: '200% 200%',
@@ -176,8 +176,8 @@ const AiMentor: React.FC<AiMentorProps> = ({ userStats }) => {
                         
                         {/* Notification Dot */}
                         <span className="absolute top-0 right-0 flex h-3 w-3">
-                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                            <span className="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
                         </span>
                     </>
                 )}

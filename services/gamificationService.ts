@@ -2,6 +2,7 @@
 import { UserStats, ActivityLog, ActivityType, NoteEntry, BlogPost, UserProfile, Achievement } from '../types';
 import { XP_VALUES, LEVEL_THRESHOLDS, INITIAL_STATS } from '../constants';
 import { getCurrentUser, getUsers } from './authService';
+import { api } from './api';
 
 // We now prefix keys with the UserID
 const getKey = (baseKey: string, userId?: string) => {
@@ -229,13 +230,51 @@ export interface LeaderboardEntry {
     stats: UserStats;
 }
 
-export const getLeaderboardData = (): LeaderboardEntry[] => {
-    const users = getUsers();
-    const leaderboard: LeaderboardEntry[] = users.map(user => {
-        const stats = getStoredStats(user.id);
-        return { user, stats };
-    });
+// Mock data for offline fallback
+const MOCK_LEADERBOARD: LeaderboardEntry[] = [
+    {
+        user: { id: 'm1', username: 'DevOps_Sensei', email: 'sensei@cloud.com', role: 'admin', joinedAt: '2023-01-01' },
+        stats: { ...INITIAL_STATS, xp: 25450, level: 10, streak: 120 }
+    },
+    {
+        user: { id: 'm2', username: 'K8s_Commander', email: 'k8s@cloud.com', role: 'user', joinedAt: '2023-02-15' },
+        stats: { ...INITIAL_STATS, xp: 18200, level: 9, streak: 85 }
+    },
+    {
+        user: { id: 'm3', username: 'Cloud_Walker', email: 'walker@cloud.com', role: 'user', joinedAt: '2023-03-10' },
+        stats: { ...INITIAL_STATS, xp: 14500, level: 8, streak: 45 }
+    },
+    {
+        user: { id: 'm4', username: 'Terraform_Titan', email: 'iac@cloud.com', role: 'user', joinedAt: '2023-04-05' },
+        stats: { ...INITIAL_STATS, xp: 9800, level: 7, streak: 12 }
+    },
+    {
+        user: { id: 'm5', username: 'Pipeline_Pro', email: 'cicd@cloud.com', role: 'user', joinedAt: '2023-05-20' },
+        stats: { ...INITIAL_STATS, xp: 5400, level: 5, streak: 5 }
+    }
+];
 
-    // Sort by XP Descending
-    return leaderboard.sort((a, b) => b.stats.xp - a.stats.xp);
+export const getLeaderboardData = async (): Promise<LeaderboardEntry[]> => {
+    try {
+        const response = await api.get<LeaderboardEntry[]>('/auth/leaderboard');
+        // Ensure the current user is included if they have stats (handled by backend usually, but for safety)
+        return response;
+    } catch (error) {
+        console.warn("Leaderboard offline or unreachable. Using cached/mock data.");
+        
+        // Fallback: If we have multiple users in local storage (rare in this auth model but possible), use them
+        // Otherwise, return mock data mixed with current user
+        const currentUser = getCurrentUser();
+        let fallbackData = [...MOCK_LEADERBOARD];
+        
+        if (currentUser) {
+            const currentStats = getStoredStats(currentUser.id);
+            // Check if current user is already in mock (by ID) to avoid dupes if we used mock ID
+            if (!fallbackData.find(e => e.user.id === currentUser.id)) {
+                fallbackData.push({ user: currentUser, stats: currentStats });
+            }
+        }
+        
+        return fallbackData.sort((a, b) => b.stats.xp - a.stats.xp);
+    }
 };
