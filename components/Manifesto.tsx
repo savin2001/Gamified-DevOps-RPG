@@ -8,10 +8,10 @@ interface ManifestoProps {
 
 const Manifesto: React.FC<ManifestoProps> = ({ onBack }) => {
   return (
-    <div className="min-h-screen bg-[#030712] text-slate-200 font-sans selection:bg-purple-500/30 overflow-x-hidden">
+    <div className="min-h-screen bg-[#030712] text-slate-200 font-sans selection:bg-navy-500/30 overflow-x-hidden">
       {/* Background Effects */}
       <div className="fixed top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
-          <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] bg-purple-900/10 rounded-full blur-[120px]"></div>
+          <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] bg-navy-900/10 rounded-full blur-[120px]"></div>
           <div className="absolute bottom-[-10%] left-[10%] w-[40%] h-[60%] bg-blue-900/10 rounded-full blur-[100px]"></div>
           <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03]"></div>
       </div>
@@ -25,10 +25,10 @@ const Manifesto: React.FC<ManifestoProps> = ({ onBack }) => {
         </button>
 
         <header className="mb-20 text-center animate-in slide-in-from-bottom-4 fade-in duration-700">
-            <div className="inline-flex items-center justify-center p-3 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-2xl border border-white/10 mb-6 shadow-2xl shadow-purple-900/20">
+            <div className="inline-flex items-center justify-center p-3 bg-gradient-to-br from-blue-500/20 to-navy-500/20 rounded-2xl border border-white/10 mb-6 shadow-2xl shadow-navy-900/20">
                 <Rocket className="w-8 h-8 text-white" />
             </div>
-            <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight mb-6 bg-clip-text text-transparent bg-gradient-to-r from-white via-blue-100 to-purple-200">
+            <h1 className="text-4xl md:text-6xl font-extrabold tracking-tight mb-6 bg-clip-text text-transparent bg-gradient-to-r from-white via-blue-100 to-gold-200">
                 The DevOps Manifesto
             </h1>
             <p className="text-xl text-gray-400 max-w-2xl mx-auto leading-relaxed">
@@ -75,14 +75,14 @@ const Manifesto: React.FC<ManifestoProps> = ({ onBack }) => {
             {/* Principle 3 */}
             <section className="group">
                 <div className="flex flex-col md:flex-row gap-8 items-start">
-                    <div className="shrink-0 p-4 bg-purple-500/10 rounded-2xl border border-purple-500/20 group-hover:bg-purple-500/20 transition-colors">
-                        <Brain className="w-8 h-8 text-purple-400" />
+                    <div className="shrink-0 p-4 bg-navy-500/10 rounded-2xl border border-navy-500/20 group-hover:bg-navy-500/20 transition-colors">
+                        <Brain className="w-8 h-8 text-navy-400" />
                     </div>
                     <div>
                         <h2 className="text-2xl font-bold text-white mb-4">Learn in Public</h2>
                         <p className="text-gray-400 leading-loose text-lg">
                             Knowledge grows when shared. We document our failures, our fixes, and our "aha!" moments.
-                            A public portfolio of <span className="text-purple-400 font-bold">12 capstone projects</span> is worth more than any multiple-choice certification.
+                            A public portfolio of <span className="text-navy-400 font-bold">12 capstone projects</span> is worth more than any multiple-choice certification.
                         </p>
                     </div>
                 </div>

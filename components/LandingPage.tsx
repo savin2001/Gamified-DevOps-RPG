@@ -50,7 +50,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart, isDark, toggleTheme 
   useEffect(() => {
     const interval = setInterval(() => {
         setPhraseIndex((prev) => (prev + 1) % HERO_PHRASES.length);
-    }, 3000); // Cycle every 3 seconds
+    }, 3000); 
     return () => clearInterval(interval);
   }, []);
 
@@ -59,7 +59,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart, isDark, toggleTheme 
   }
 
   return (
-    <div className={`min-h-screen transition-colors duration-500 font-sans selection:bg-emerald-500/30 ${isDark ? 'bg-[#020617] text-white' : 'bg-slate-50 text-slate-900'} relative overflow-x-hidden`}>
+    <div className={`min-h-screen transition-colors duration-500 font-sans selection:bg-brand-500/30 ${isDark ? 'bg-surface-dark text-white' : 'bg-surface-light text-slate-900'} relative overflow-x-hidden`}>
         <style>{`
             @keyframes text-slide-up {
                 0% { transform: translateY(20px); opacity: 0; }
@@ -69,36 +69,31 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart, isDark, toggleTheme 
 
         {/* Navbar */}
         <header>
-            <nav className={`fixed w-full z-50 backdrop-blur-xl border-b transition-colors duration-500 ${isDark ? 'border-emerald-500/10 bg-[#020617]/80' : 'border-slate-200 bg-white/70'}`} aria-label="Main Navigation">
+            <nav className={`fixed w-full z-50 backdrop-blur-md border-b transition-colors duration-500 ${isDark ? 'border-white/10 bg-surface-dark/80' : 'border-slate-200 bg-white/80'}`}>
                 <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-                    {/* Logo */}
                     <div className="flex items-center gap-3 cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
-                        <div className={`p-2 rounded-xl shadow-lg ${isDark ? 'bg-gradient-to-br from-emerald-600 to-teal-700 shadow-emerald-900/20' : 'bg-gradient-to-br from-emerald-500 to-teal-600 shadow-emerald-200'}`}>
-                            <Rocket className="w-6 h-6 text-white" aria-hidden="true" />
+                        <div className={`p-1.5 rounded-lg shadow-sm ${isDark ? 'bg-brand-600' : 'bg-brand-600'}`}>
+                            <Rocket className="w-5 h-5 text-white" aria-hidden="true" />
                         </div>
-                        <span className="text-xl font-bold tracking-tight">DevOps<span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-400">Quest</span></span>
+                        <span className="text-xl font-bold tracking-tight">DevOps<span className="text-brand-600 dark:text-brand-400">Quest</span></span>
                     </div>
 
-                    {/* Controls */}
                     <div className="flex items-center gap-4">
                         <button 
                             onClick={toggleTheme} 
                             className={`p-2 rounded-full transition-colors ${isDark ? 'hover:bg-white/10 text-slate-400 hover:text-white' : 'hover:bg-slate-200 text-slate-600'}`}
-                            title={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}
-                            aria-label={isDark ? "Switch to Light Mode" : "Switch to Dark Mode"}
                         >
                             {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
                         </button>
                         <button 
                             onClick={onStart}
-                            className={`hidden md:flex items-center gap-2 px-6 py-2.5 rounded-full font-bold transition-all transform hover:scale-105 shadow-lg ${
+                            className={`hidden md:flex items-center gap-2 px-6 py-2.5 rounded-full font-bold transition-all transform hover:scale-105 shadow-md ${
                                 isDark 
-                                ? 'bg-white text-emerald-900 hover:bg-emerald-50 shadow-white/10' 
-                                : 'bg-slate-900 text-white hover:bg-slate-800 shadow-slate-200'
+                                ? 'bg-white text-navy-900 hover:bg-slate-100' 
+                                : 'bg-navy-900 text-white hover:bg-navy-800'
                             }`}
-                            aria-label="Login to DevOps Quest"
                         >
-                            Login <ArrowRight className="w-4 h-4" aria-hidden="true" />
+                            Login <ArrowRight className="w-4 h-4" />
                         </button>
                     </div>
                 </div>
@@ -107,27 +102,30 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart, isDark, toggleTheme 
 
         <main>
             {/* Hero Section */}
-            <section className="relative pt-32 pb-20 px-6 overflow-hidden min-h-screen flex flex-col justify-center" aria-label="Hero">
-                 {/* Background Effects - Kenya Fintech Colors (Emerald, Gold, Navy) */}
-                 <div className={`absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[600px] rounded-full blur-[120px] -z-10 transition-colors duration-700 opacity-30 ${isDark ? 'bg-gradient-to-b from-emerald-900/60 to-blue-900/40' : 'bg-gradient-to-b from-emerald-300/60 to-blue-300/40'}`}></div>
+            <section className="relative pt-32 pb-20 px-6 overflow-hidden min-h-screen flex flex-col justify-center">
+                 {/* Background Effects - Standard Gradients, No Neon Blobs */}
+                 <div className={`absolute top-0 left-0 w-full h-[800px] -z-10 transition-colors duration-700 ${
+                     isDark 
+                     ? 'bg-gradient-to-b from-navy-950 via-surface-dark to-surface-dark' 
+                     : 'bg-gradient-to-b from-navy-50 via-surface-light to-surface-light'
+                 }`}></div>
                  
-                 {/* Grid Pattern Overlay */}
-                 <div className={`absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 pointer-events-none`}></div>
+                 <div className={`absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-10 pointer-events-none`}></div>
 
                  <div className="max-w-5xl mx-auto text-center relative z-10 animate-in fade-in slide-in-from-bottom-8 duration-700">
-                    <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full mb-8 border backdrop-blur-md ${isDark ? 'bg-emerald-900/20 border-emerald-500/20 text-emerald-300' : 'bg-emerald-50 border-emerald-200 text-emerald-700 shadow-sm'}`}>
+                    <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full mb-8 border ${isDark ? 'bg-white/5 border-white/10 text-brand-400' : 'bg-white border-slate-200 text-brand-700 shadow-sm'}`}>
                         <span className="relative flex h-2 w-2">
-                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                          <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand-400 opacity-75"></span>
+                          <span className="relative inline-flex rounded-full h-2 w-2 bg-brand-500"></span>
                         </span>
                         <span className="text-xs font-bold uppercase tracking-wider">Secure. Stable. Scalable.</span>
                     </div>
 
-                    <h1 className="text-5xl md:text-7xl lg:text-8xl font-extrabold tracking-tight mb-8 leading-tight min-h-[3.5em] md:min-h-[2.5em]">
+                    <h1 className={`text-5xl md:text-7xl lg:text-8xl font-extrabold tracking-tight mb-8 leading-tight min-h-[3.5em] md:min-h-[2.5em] ${isDark ? 'text-white' : 'text-navy-900'}`}>
                         Invest in Your <br className="hidden md:block"/>
                         <span 
                             key={phraseIndex}
-                            className={`inline-block text-transparent bg-clip-text bg-gradient-to-r animate-[text-slide-up_0.5s_ease-out_forwards] ${isDark ? 'from-emerald-400 via-teal-300 to-yellow-400' : 'from-emerald-600 via-teal-600 to-yellow-600'}`}
+                            className="inline-block text-brand-600 dark:text-brand-400 animate-[text-slide-up_0.5s_ease-out_forwards]"
                         >
                             {HERO_PHRASES[phraseIndex]}
                         </span>
@@ -140,16 +138,16 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart, isDark, toggleTheme 
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                         <button 
                             onClick={onStart}
-                            className="w-full sm:w-auto px-10 py-5 bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-500 hover:to-teal-600 text-white rounded-xl font-bold text-lg shadow-[0_0_40px_-10px_rgba(16,185,129,0.5)] transition-all transform hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2"
+                            className="w-full sm:w-auto px-10 py-5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl font-bold text-lg shadow-lg transition-all transform hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-2"
                         >
-                            <Zap className="w-5 h-5 fill-current" aria-hidden="true" /> Begin Journey
+                            <Zap className="w-5 h-5 fill-current" /> Begin Journey
                         </button>
                         <button 
                             onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}
                             className={`w-full sm:w-auto px-10 py-5 rounded-xl font-bold text-lg transition-all border flex items-center justify-center gap-2 ${
                                 isDark 
-                                ? 'bg-white/5 border-white/10 hover:bg-white/10 text-white hover:border-white/20' 
-                                : 'bg-white border-slate-200 hover:bg-slate-50 text-slate-700 shadow-lg shadow-slate-200/50'
+                                ? 'bg-white/5 border-white/10 hover:bg-white/10 text-white' 
+                                : 'bg-white border-slate-200 hover:bg-slate-50 text-slate-700 shadow-md'
                             }`}
                         >
                             View Curriculum
@@ -159,10 +157,10 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart, isDark, toggleTheme 
             </section>
 
             {/* Features Grid */}
-            <section id="features" className={`py-32 px-6 relative transition-colors duration-500 ${isDark ? 'bg-[#0f172a]/50' : 'bg-slate-100/50'}`} aria-label="Key Features">
+            <section id="features" className={`py-32 px-6 relative transition-colors duration-500 ${isDark ? 'bg-surface-cardDark' : 'bg-white'}`}>
                  <div className="max-w-7xl mx-auto relative z-10">
                     <div className="text-center mb-16">
-                        <h2 className="text-3xl md:text-5xl font-extrabold tracking-tight mb-4">Enterprise Grade Learning</h2>
+                        <h2 className={`text-3xl md:text-5xl font-extrabold tracking-tight mb-4 ${isDark ? 'text-white' : 'text-navy-900'}`}>Enterprise Grade Learning</h2>
                         <p className={`text-lg max-w-2xl mx-auto ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>
                             A robust ecosystem designed for reliability and career growth.
                         </p>
@@ -216,42 +214,35 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart, isDark, toggleTheme 
             </section>
 
             {/* Live Dashboard Preview */}
-            <section className="py-20 px-6 overflow-hidden" aria-label="Dashboard Preview">
-                 <div className={`max-w-6xl mx-auto rounded-[2.5rem] border p-3 md:p-4 relative transition-all duration-500 ${isDark ? 'bg-slate-900/50 border-white/10 shadow-2xl' : 'bg-white border-slate-200 shadow-2xl shadow-blue-900/10'}`}>
+            <section className={`py-20 px-6 overflow-hidden ${isDark ? 'bg-surface-dark' : 'bg-slate-50'}`}>
+                 <div className={`max-w-6xl mx-auto rounded-3xl border p-4 relative transition-all duration-500 ${isDark ? 'bg-surface-cardDark border-white/10 shadow-2xl' : 'bg-white border-slate-200 shadow-xl'}`}>
                       {/* Mock Window Controls */}
-                      <div className={`absolute top-0 left-0 right-0 h-14 border-b flex items-center px-6 gap-2 rounded-t-[2.5rem] ${isDark ? 'bg-slate-900/80 border-white/5' : 'bg-slate-50 border-slate-200'} z-20`}>
-                          <div className="w-3 h-3 rounded-full bg-red-500/80 shadow-sm"></div>
-                          <div className="w-3 h-3 rounded-full bg-yellow-500/80 shadow-sm"></div>
-                          <div className="w-3 h-3 rounded-full bg-green-500/80 shadow-sm"></div>
+                      <div className={`absolute top-0 left-0 right-0 h-12 border-b flex items-center px-6 gap-2 rounded-t-3xl ${isDark ? 'bg-surface-dark/50 border-white/5' : 'bg-slate-50 border-slate-200'} z-20`}>
+                          <div className="w-3 h-3 rounded-full bg-slate-300 dark:bg-slate-700"></div>
+                          <div className="w-3 h-3 rounded-full bg-slate-300 dark:bg-slate-700"></div>
+                          <div className="w-3 h-3 rounded-full bg-slate-300 dark:bg-slate-700"></div>
                           <div className={`ml-4 text-[10px] font-mono opacity-50 ${isDark ? 'text-white' : 'text-slate-900'}`}>~/devops/banking/dashboard</div>
-                          <div className="ml-auto flex items-center gap-2">
-                                <span className="flex h-2 w-2">
-                                    <span className="animate-ping absolute inline-flex h-2 w-2 rounded-full bg-emerald-400 opacity-75"></span>
-                                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                                </span>
-                                <span className={`text-[10px] font-bold tracking-wider ${isDark ? 'text-emerald-400' : 'text-emerald-600'}`}>SECURE CONNECTION</span>
-                          </div>
                       </div>
                       
                       {/* Content Preview Mockup */}
-                      <div className={`mt-14 rounded-2xl overflow-hidden h-[600px] md:h-auto md:aspect-[16/10] relative group border ${isDark ? 'bg-[#020617] border-white/5' : 'bg-slate-50 border-slate-200'}`}>
-                            {/* Render Actual Dashboard as Preview (Scaled Down) */}
+                      <div className={`mt-12 rounded-xl overflow-hidden h-[600px] md:h-auto md:aspect-[16/10] relative group border ${isDark ? 'bg-surface-dark border-white/5' : 'bg-slate-50 border-slate-200'}`}>
+                            {/* Render Actual Dashboard as Preview */}
                             <div className="absolute inset-0 overflow-y-auto overflow-x-hidden scrollbar-thin scrollbar-thumb-white/10 p-2 md:p-8" aria-hidden="true">
-                                 {/* Wrapper to ensure dark mode styles of dashboard work even in light mode landing */}
-                                 <div className="dark p-4 md:p-6 rounded-3xl min-h-full bg-[#020617] text-white">
-                                    <Dashboard stats={PREVIEW_STATS} xpHistory={PREVIEW_HISTORY} />
+                                 {/* Wrapper to force dark mode styles inside the preview container regardless of current theme to show "Pro" look */}
+                                 <div className="dark">
+                                     <div className="bg-surface-cardDark text-white p-6 rounded-2xl min-h-full">
+                                        <Dashboard stats={PREVIEW_STATS} xpHistory={PREVIEW_HISTORY} />
+                                     </div>
                                  </div>
                             </div>
 
-                            {/* Interactive overlay that invites to login */}
-                            <div className="absolute inset-0 bg-gradient-to-t from-[#020617] via-transparent to-transparent pointer-events-none flex items-end justify-center pb-10">
+                            <div className={`absolute inset-0 bg-gradient-to-t pointer-events-none flex items-end justify-center pb-10 ${isDark ? 'from-surface-dark' : 'from-white'}`}>
                                  <div className="pointer-events-auto">
                                     <button 
                                         onClick={onStart}
-                                        className="px-6 py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-full shadow-lg shadow-emerald-500/40 animate-bounce transition-all hover:scale-110 flex items-center gap-2"
-                                        aria-label="Login to Access Full System"
+                                        className="px-8 py-3 bg-brand-600 hover:bg-brand-500 text-white font-bold rounded-full shadow-lg transition-all hover:scale-105 flex items-center gap-2"
                                     >
-                                        Access Member Portal <ArrowRight className="w-4 h-4" aria-hidden="true" />
+                                        Access Member Portal <ArrowRight className="w-4 h-4" />
                                     </button>
                                  </div>
                             </div>
@@ -264,13 +255,13 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart, isDark, toggleTheme 
         <footer className={`py-12 px-6 border-t ${isDark ? 'border-white/5 bg-black/20 text-slate-500' : 'border-slate-200 bg-white text-slate-400'}`}>
             <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
                  <div className="flex items-center gap-2 opacity-80 hover:opacity-100 transition-opacity">
-                    <Rocket className="w-5 h-5" aria-hidden="true" />
+                    <Rocket className="w-5 h-5" />
                     <span className="font-bold">DevOps Quest</span>
                  </div>
-                 <nav className="flex gap-6 text-sm font-medium" aria-label="Footer Navigation">
-                     <a href="#" className="hover:text-emerald-500 transition-colors">Curriculum</a>
-                     <button onClick={() => setShowManifesto(true)} className="hover:text-emerald-500 transition-colors text-left">Manifesto</button>
-                     <a href="#" className="hover:text-emerald-500 transition-colors">GitHub</a>
+                 <nav className="flex gap-6 text-sm font-medium">
+                     <a href="#" className="hover:text-brand-500 transition-colors">Curriculum</a>
+                     <button onClick={() => setShowManifesto(true)} className="hover:text-brand-500 transition-colors text-left">Manifesto</button>
+                     <a href="#" className="hover:text-brand-500 transition-colors">GitHub</a>
                  </nav>
                  <p className="text-xs font-mono">Reliability. Integrity. Engineering.</p>
             </div>
@@ -280,26 +271,25 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart, isDark, toggleTheme 
 };
 
 const FeatureCard = ({ isDark, icon: Icon, color, title, desc }: any) => {
-    // Colors inspired by Kenyan Banking (KCB Blue/Green, Equity Maroon/Gold, Safaricom Green)
     const colorClasses: any = {
-        gold: isDark ? 'bg-yellow-500/10 text-yellow-500 border-yellow-500/20' : 'bg-yellow-100 text-yellow-700 border-yellow-200',
-        emerald: isDark ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-emerald-100 text-emerald-700 border-emerald-200',
-        navy: isDark ? 'bg-blue-900/30 text-blue-300 border-blue-500/20' : 'bg-blue-100 text-blue-700 border-blue-200',
-        teal: isDark ? 'bg-teal-500/10 text-teal-400 border-teal-500/20' : 'bg-teal-100 text-teal-700 border-teal-200',
-        red: isDark ? 'bg-red-900/20 text-red-400 border-red-500/20' : 'bg-red-100 text-red-800 border-red-200',
-        slate: isDark ? 'bg-slate-700/30 text-slate-300 border-slate-500/20' : 'bg-slate-200 text-slate-700 border-slate-300',
+        gold: isDark ? 'bg-gold-900/10 text-gold-500 border-gold-500/20' : 'bg-gold-50 text-gold-700 border-gold-200',
+        emerald: isDark ? 'bg-brand-900/10 text-brand-400 border-brand-500/20' : 'bg-brand-50 text-brand-700 border-brand-200',
+        navy: isDark ? 'bg-navy-900/30 text-navy-300 border-navy-500/20' : 'bg-navy-50 text-navy-700 border-navy-200',
+        teal: isDark ? 'bg-teal-900/10 text-teal-400 border-teal-500/20' : 'bg-teal-50 text-teal-700 border-teal-200',
+        red: isDark ? 'bg-red-900/20 text-red-400 border-red-500/20' : 'bg-red-50 text-red-700 border-red-200',
+        slate: isDark ? 'bg-slate-800 text-slate-300 border-slate-700' : 'bg-slate-100 text-slate-700 border-slate-200',
     };
 
     return (
-        <article className={`p-8 rounded-[2rem] border transition-all duration-300 hover:-translate-y-2 group h-full flex flex-col ${
+        <article className={`p-8 rounded-2xl border transition-all duration-300 hover:-translate-y-2 group h-full flex flex-col ${
             isDark 
-            ? 'bg-white/5 border-white/5 hover:bg-white/10 hover:shadow-[0_0_30px_-5px_rgba(16,185,129,0.1)]' 
-            : 'bg-white border-slate-200 shadow-xl shadow-slate-200/50 hover:shadow-2xl'
+            ? 'bg-white/5 border-white/5 hover:bg-white/10' 
+            : 'bg-white border-slate-200 shadow-sm hover:shadow-md'
         }`}>
-            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center mb-6 transition-transform group-hover:scale-110 border ${colorClasses[color]}`} aria-hidden="true">
-                <Icon className="w-7 h-7" />
+            <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-6 transition-transform group-hover:scale-110 border ${colorClasses[color]}`}>
+                <Icon className="w-6 h-6" />
             </div>
-            <h3 className={`text-xl font-bold mb-3 ${isDark ? 'text-white' : 'text-slate-900'}`}>{title}</h3>
+            <h3 className={`text-xl font-bold mb-3 ${isDark ? 'text-white' : 'text-navy-900'}`}>{title}</h3>
             <p className={`leading-relaxed text-sm flex-1 ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>{desc}</p>
         </article>
     );

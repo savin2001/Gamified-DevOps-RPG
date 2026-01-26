@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { generateQuiz, QuizQuestion } from '../services/geminiService';
 import { logActivity, saveQuizResult } from '../services/gamificationService';
 import { ActivityType } from '../types';
-import { Brain, CheckCircle, XCircle, Loader2, Trophy, ArrowRight, RefreshCw, AlertTriangle, X, ShieldAlert } from 'lucide-react';
+import { Brain, CheckCircle, XCircle, RefreshCw, AlertTriangle, X, ShieldAlert, Trophy, ArrowRight } from 'lucide-react';
 import SuccessModal from './SuccessModal';
 
 interface QuizModalProps {
@@ -17,7 +17,6 @@ interface QuizModalProps {
 const QuizModal: React.FC<QuizModalProps> = ({ isOpen, onClose, topic, weekId, onComplete }) => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [isApiKeyMissing, setIsApiKeyMissing] = useState(false);
     const [questions, setQuestions] = useState<QuizQuestion[]>([]);
     const [currentQuestionIdx, setCurrentQuestionIdx] = useState(0);
     const [selectedOption, setSelectedOption] = useState<number | null>(null);
@@ -35,7 +34,6 @@ const QuizModal: React.FC<QuizModalProps> = ({ isOpen, onClose, topic, weekId, o
     const loadQuiz = async () => {
         setLoading(true);
         setError(null);
-        setIsApiKeyMissing(false);
         setQuestions([]);
         setScore(0);
         setCurrentQuestionIdx(0);
@@ -43,17 +41,10 @@ const QuizModal: React.FC<QuizModalProps> = ({ isOpen, onClose, topic, weekId, o
         
         try {
             const data = await generateQuiz(topic, weekId);
-            if (!data || data.length === 0) {
-                throw new Error("AI returned empty data.");
-            }
+            if (!data || data.length === 0) throw new Error("No data.");
             setQuestions(data);
         } catch (err: any) {
-            if (err.message === "API_KEY_MISSING") {
-                setIsApiKeyMissing(true);
-                setError("API Key Config Required");
-            } else {
-                setError("Failed to generate quiz parameters. The neural link might be unstable.");
-            }
+            setError("Assessment generation failed.");
         } finally {
             setLoading(false);
         }
@@ -61,11 +52,9 @@ const QuizModal: React.FC<QuizModalProps> = ({ isOpen, onClose, topic, weekId, o
 
     const handleAnswer = (index: number) => {
         if (selectedOption !== null) return; 
-        
         setSelectedOption(index);
         const correct = index === questions[currentQuestionIdx].correctIndex;
         setIsCorrect(correct);
-        
         if (correct) setScore(prev => prev + 1);
     };
 
@@ -93,222 +82,102 @@ const QuizModal: React.FC<QuizModalProps> = ({ isOpen, onClose, topic, weekId, o
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[60] flex items-center justify-center p-4 animate-in fade-in duration-300">
-            {/* Main Glass Container - Floating Size */}
-            {/* Adjusted responsive width/height to be more "floating" on desktop (65vw/75vh) while keeping mobile accessible */}
-            <div className="w-[95vw] h-[90vh] md:w-[85vw] md:h-[80vh] lg:w-[65vw] lg:h-[75vh] max-w-5xl bg-gray-900/90 backdrop-blur-2xl border border-white/10 rounded-3xl shadow-2xl overflow-hidden flex flex-col relative animate-in zoom-in-95 duration-500">
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[60] flex items-center justify-center p-4">
+            <div className="w-full max-w-4xl bg-white dark:bg-surface-cardDark border border-slate-200 dark:border-white/10 rounded-2xl shadow-2xl flex flex-col relative overflow-hidden">
                 
-                {/* Background Decoration */}
-                <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-purple-500/10 rounded-full blur-[100px] -translate-y-1/2 translate-x-1/3 pointer-events-none"></div>
-                <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-blue-500/10 rounded-full blur-[100px] translate-y-1/3 -translate-x-1/3 pointer-events-none"></div>
-
-                {/* Header - Fixed at top */}
-                <div className="p-6 border-b border-white/5 flex justify-between items-center relative z-10 bg-black/20 shrink-0">
-                    <div className="flex items-center gap-4 min-w-0">
-                        <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center shadow-lg shadow-purple-500/20 shrink-0">
-                            <Brain className="w-6 h-6 text-white" />
+                {/* Header */}
+                <div className="p-6 border-b border-slate-200 dark:border-white/10 flex justify-between items-center bg-slate-50 dark:bg-black/20">
+                    <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-lg bg-navy-50 dark:bg-navy-900/30 flex items-center justify-center border border-navy-100 dark:border-navy-800">
+                            <Brain className="w-5 h-5 text-navy-600 dark:text-navy-400" />
                         </div>
-                        <div className="min-w-0">
-                            <h2 className="text-xl md:text-2xl font-bold text-white tracking-tight truncate">Knowledge Checkpoint</h2>
-                            <div className="flex items-center gap-2 text-sm text-gray-400 font-mono overflow-hidden">
-                                <span className="px-2 py-0.5 rounded bg-white/5 border border-white/10 shrink-0">WEEK {weekId}</span>
-                                <span className="truncate">{topic}</span>
-                            </div>
+                        <div>
+                            <h2 className="text-lg font-bold text-navy-900 dark:text-white">Knowledge Checkpoint</h2>
+                            <p className="text-xs text-slate-500">WEEK {weekId} &bull; {topic}</p>
                         </div>
                     </div>
-                    
-                    <button 
-                        onClick={onClose} 
-                        className="p-2 rounded-full bg-white/5 hover:bg-white/10 border border-white/5 text-gray-400 hover:text-white transition-all hover:rotate-90 shrink-0"
-                    >
-                        <X className="w-6 h-6" />
+                    <button onClick={onClose} className="p-2 text-slate-400 hover:text-slate-600 dark:hover:text-white">
+                        <X className="w-5 h-5" />
                     </button>
                 </div>
 
-                {/* Content Area - Scrollable */}
-                <div className="flex-1 overflow-y-auto p-6 md:p-8 relative z-10 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
+                <div className="p-8 min-h-[400px]">
                     {loading ? (
-                        <div className="h-full flex flex-col items-center justify-center gap-6">
-                            <div className="relative">
-                                <div className="w-16 h-16 border-4 border-blue-500/30 border-t-blue-500 rounded-full animate-spin"></div>
-                                <div className="absolute inset-0 flex items-center justify-center">
-                                    <Brain className="w-8 h-8 text-blue-400 animate-pulse" />
-                                </div>
-                            </div>
-                            <div className="text-center space-y-2">
-                                <h3 className="text-xl font-bold text-white">Synthesizing Quiz...</h3>
-                                <p className="text-gray-400 font-mono text-sm">AI is analyzing curriculum vectors</p>
-                            </div>
+                        <div className="h-full flex flex-col items-center justify-center">
+                            <div className="w-8 h-8 border-2 border-brand-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+                            <p className="text-slate-500 text-sm">Synthesizing Assessment...</p>
                         </div>
                     ) : error ? (
-                        <div className="h-full flex flex-col items-center justify-center gap-8 max-w-lg mx-auto text-center px-4">
-                            <div className={`w-24 h-24 rounded-3xl flex items-center justify-center border-2 ${isApiKeyMissing ? 'bg-yellow-500/10 border-yellow-500/20' : 'bg-red-500/10 border-red-500/20'}`}>
-                                {isApiKeyMissing ? <ShieldAlert className="w-12 h-12 text-yellow-400" /> : <AlertTriangle className="w-12 h-12 text-red-400" />}
-                            </div>
-                            <div>
-                                <h3 className="text-2xl md:text-3xl font-bold text-white mb-2">{isApiKeyMissing ? "Missing Credentials" : "Generation Failed"}</h3>
-                                <p className="text-gray-400 leading-relaxed text-base md:text-lg">
-                                    {isApiKeyMissing 
-                                        ? "The AI Mentor requires a valid API Key to generate real-time assessments. Please configure your environment to unlock this feature."
-                                        : error}
-                                </p>
-                            </div>
-                            
-                            {isApiKeyMissing ? (
-                                <div className="w-full bg-black/30 rounded-xl p-4 border border-white/10 text-left">
-                                    <p className="text-xs text-gray-500 uppercase font-bold mb-2">How to fix:</p>
-                                    <code className="block bg-black/50 p-3 rounded-lg text-sm text-green-400 font-mono border border-white/5 overflow-x-auto">
-                                        // Create .env file<br/>
-                                        API_KEY=your_gemini_api_key
-                                    </code>
-                                    <a 
-                                        href="https://aistudio.google.com/app/apikey" 
-                                        target="_blank" 
-                                        rel="noreferrer"
-                                        className="mt-4 block w-full py-3 bg-white text-black text-center font-bold rounded-xl hover:bg-gray-200 transition-colors"
-                                    >
-                                        Get API Key
-                                    </a>
-                                </div>
-                            ) : (
-                                <button 
-                                    onClick={loadQuiz}
-                                    className="px-8 py-3 bg-white text-black font-bold rounded-xl hover:bg-gray-200 transition-colors flex items-center gap-2 shadow-lg hover:scale-105 transform duration-200"
-                                >
-                                    <RefreshCw className="w-5 h-5" /> Retry Generation
-                                </button>
-                            )}
+                        <div className="flex flex-col items-center justify-center h-full text-center">
+                            <AlertTriangle className="w-12 h-12 text-red-500 mb-4" />
+                            <h3 className="text-lg font-bold text-navy-900 dark:text-white">Generation Failed</h3>
+                            <button onClick={loadQuiz} className="mt-4 px-6 py-2 bg-navy-900 text-white rounded-lg">Retry</button>
                         </div>
                     ) : showResults ? (
-                        <div className="h-full flex flex-col items-center justify-center animate-in fade-in slide-in-from-bottom-4 duration-500 py-10">
-                            <div className="relative mb-10 group">
-                                <div className={`absolute inset-0 rounded-full blur-3xl opacity-40 group-hover:opacity-60 transition-opacity ${score / questions.length >= 0.8 ? 'bg-green-500' : 'bg-red-500'}`}></div>
-                                <div className={`w-32 h-32 md:w-40 md:h-40 rounded-full flex items-center justify-center border-4 relative z-10 bg-gray-900 ${
-                                    score / questions.length >= 0.8 ? 'border-green-500 text-green-400' : 'border-red-500 text-red-400'
-                                }`}>
-                                    {score / questions.length >= 0.8 ? <Trophy className="w-16 h-16 md:w-20 md:h-20" /> : <RefreshCw className="w-16 h-16 md:w-20 md:h-20" />}
-                                </div>
+                        <div className="flex flex-col items-center justify-center h-full text-center">
+                            <div className={`w-24 h-24 rounded-full flex items-center justify-center border-4 mb-6 ${score / questions.length >= 0.8 ? 'border-brand-500 text-brand-500' : 'border-red-500 text-red-500'}`}>
+                                {score / questions.length >= 0.8 ? <Trophy className="w-10 h-10" /> : <RefreshCw className="w-10 h-10" />}
                             </div>
-                            
-                            <h2 className="text-5xl md:text-7xl font-bold text-white mb-4 tracking-tight">{Math.round((score / questions.length) * 100)}%</h2>
-                            <p className="text-xl md:text-2xl text-gray-400 mb-10 font-medium text-center">
-                                {score / questions.length >= 0.8 ? "Proficiency Verified." : "Proficiency Not Met."}
-                            </p>
-
-                            <div className="grid grid-cols-2 gap-6 mb-10 w-full max-w-md">
-                                <div className="bg-white/5 rounded-3xl p-6 border border-white/5 text-center">
-                                    <div className="text-3xl md:text-4xl font-bold text-white mb-1">{score}</div>
-                                    <div className="text-xs text-gray-500 uppercase font-bold tracking-wider">Correct</div>
-                                </div>
-                                <div className="bg-white/5 rounded-3xl p-6 border border-white/5 text-center">
-                                    <div className="text-3xl md:text-4xl font-bold text-white mb-1">{questions.length - score}</div>
-                                    <div className="text-xs text-gray-500 uppercase font-bold tracking-wider">Incorrect</div>
-                                </div>
-                            </div>
-                            
-                            <button 
-                                onClick={score / questions.length >= 0.8 ? onClose : loadQuiz}
-                                className={`px-10 py-4 text-lg font-bold rounded-2xl transition-all transform hover:scale-105 shadow-xl ${
-                                    score / questions.length >= 0.8 
-                                    ? 'bg-green-500 hover:bg-green-400 text-black shadow-green-900/20' 
-                                    : 'bg-white hover:bg-gray-200 text-black shadow-white/10'
-                                }`}
-                            >
+                            <h2 className="text-4xl font-bold text-navy-900 dark:text-white mb-2">{Math.round((score / questions.length) * 100)}%</h2>
+                            <p className="text-slate-500 mb-8">{score / questions.length >= 0.8 ? "Proficiency Verified." : "Requirements Not Met."}</p>
+                            <button onClick={score / questions.length >= 0.8 ? onClose : loadQuiz} className="px-8 py-3 bg-navy-900 dark:bg-white dark:text-black text-white font-bold rounded-lg">
                                 {score / questions.length >= 0.8 ? "Return to Dashboard" : "Retake Assessment"}
                             </button>
                         </div>
                     ) : (
-                        <div className="max-w-4xl mx-auto min-h-full flex flex-col justify-start">
-                            {/* Progress Header */}
-                            <div className="flex justify-between items-end mb-6 shrink-0">
-                                <span className="text-xs md:text-sm font-mono text-gray-500 tracking-wider">QUESTION {currentQuestionIdx + 1} OF {questions.length}</span>
-                                <span className="text-xs md:text-sm font-bold text-white">{Math.round(((currentQuestionIdx) / questions.length) * 100)}% Complete</span>
+                        <div className="max-w-3xl mx-auto">
+                            <div className="flex justify-between items-center mb-6">
+                                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Question {currentQuestionIdx + 1} of {questions.length}</span>
                             </div>
                             
-                            {/* Progress Bar */}
-                            <div className="w-full bg-gray-800 h-2 rounded-full overflow-hidden mb-8 md:mb-10 shrink-0">
-                                <div 
-                                    className="bg-gradient-to-r from-blue-500 to-purple-500 h-full transition-all duration-500 ease-out" 
-                                    style={{ width: `${((currentQuestionIdx + 1) / questions.length) * 100}%` }}
-                                ></div>
-                            </div>
-
-                            {/* Question Card - Allow flexibility */}
-                            <div className="flex-1">
-                                <h3 className="text-xl md:text-2xl font-bold text-white leading-tight mb-8">
-                                    {questions[currentQuestionIdx].question}
-                                </h3>
-                                
-                                <div className="grid md:grid-cols-2 gap-4">
-                                    {questions[currentQuestionIdx].options.map((opt, i) => {
-                                        let btnClass = "relative p-5 rounded-2xl border text-left transition-all duration-300 group overflow-hidden ";
-                                        
-                                        if (selectedOption === null) {
-                                            btnClass += "bg-white/5 border-white/10 hover:bg-white/10 hover:border-blue-500/50 hover:shadow-[0_0_20px_rgba(59,130,246,0.1)] hover:-translate-y-1";
-                                        } else if (i === questions[currentQuestionIdx].correctIndex) {
-                                            btnClass += "bg-green-500/20 border-green-500/50 text-green-100 shadow-[0_0_20px_rgba(34,197,94,0.2)]";
-                                        } else if (i === selectedOption) {
-                                            btnClass += "bg-red-500/20 border-red-500/50 text-red-100";
-                                        } else {
-                                            btnClass += "bg-black/20 border-white/5 opacity-40 grayscale";
-                                        }
-
-                                        return (
-                                            <button 
-                                                key={i}
-                                                onClick={() => handleAnswer(i)}
-                                                disabled={selectedOption !== null}
-                                                className={btnClass}
-                                            >
-                                                <div className="flex items-center justify-between relative z-10">
-                                                    <span className="font-medium text-base">{opt}</span>
-                                                    {selectedOption !== null && i === questions[currentQuestionIdx].correctIndex && (
-                                                        <CheckCircle className="w-6 h-6 text-green-400 shrink-0 ml-2" />
-                                                    )}
-                                                    {selectedOption === i && i !== questions[currentQuestionIdx].correctIndex && (
-                                                        <XCircle className="w-6 h-6 text-red-400 shrink-0 ml-2" />
-                                                    )}
-                                                </div>
-                                            </button>
-                                        );
-                                    })}
-                                </div>
-                            </div>
-
-                            {/* Feedback & Navigation Footer */}
-                            {selectedOption !== null && (
-                                <div className="mt-8 shrink-0 animate-in slide-in-from-bottom-4 fade-in duration-300 pb-2">
-                                    <div className="bg-gray-800/80 backdrop-blur-md border border-white/10 p-5 rounded-3xl flex flex-col md:flex-row items-start md:items-center justify-between gap-6 shadow-xl ring-1 ring-white/5">
-                                        <div className="flex-1">
-                                            <h5 className={`text-xs font-bold uppercase mb-2 ${isCorrect ? 'text-green-400' : 'text-red-400'}`}>
-                                                {isCorrect ? 'Correct Analysis' : 'Incorrect Analysis'}
-                                            </h5>
-                                            <p className="text-sm text-gray-300 leading-relaxed">
-                                                {questions[currentQuestionIdx].explanation}
-                                            </p>
-                                        </div>
-                                        
+                            <h3 className="text-xl font-bold text-navy-900 dark:text-white mb-8">{questions[currentQuestionIdx].question}</h3>
+                            
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {questions[currentQuestionIdx].options.map((opt, i) => {
+                                    let style = "bg-white dark:bg-white/5 border-slate-200 dark:border-white/10 hover:border-navy-400";
+                                    if (selectedOption !== null) {
+                                        if (i === questions[currentQuestionIdx].correctIndex) style = "bg-brand-50 dark:bg-brand-900/20 border-brand-500 text-brand-700 dark:text-brand-400";
+                                        else if (i === selectedOption) style = "bg-red-50 dark:bg-red-900/20 border-red-500 text-red-700 dark:text-red-400";
+                                        else style = "opacity-50 grayscale";
+                                    }
+                                    
+                                    return (
                                         <button 
-                                            onClick={nextQuestion}
-                                            className="shrink-0 w-full md:w-auto px-8 py-3 bg-white text-black font-bold rounded-xl hover:bg-gray-200 transition-colors flex items-center justify-center gap-2 shadow-lg hover:scale-105 transform duration-200"
+                                            key={i} 
+                                            onClick={() => handleAnswer(i)}
+                                            disabled={selectedOption !== null}
+                                            className={`p-4 rounded-xl border text-left transition-all ${style}`}
                                         >
-                                            {currentQuestionIdx === questions.length - 1 ? "Complete Assessment" : "Next Challenge"} 
-                                            <ArrowRight className="w-5 h-5" />
+                                            <div className="flex justify-between items-center">
+                                                <span className="text-sm font-medium">{opt}</span>
+                                                {selectedOption !== null && i === questions[currentQuestionIdx].correctIndex && <CheckCircle className="w-4 h-4 text-brand-500" />}
+                                                {selectedOption === i && i !== questions[currentQuestionIdx].correctIndex && <XCircle className="w-4 h-4 text-red-500" />}
+                                            </div>
                                         </button>
+                                    );
+                                })}
+                            </div>
+
+                            {selectedOption !== null && (
+                                <div className="mt-8 p-4 bg-slate-50 dark:bg-white/5 border border-slate-200 dark:border-white/10 rounded-xl flex justify-between items-center animate-in slide-in-from-bottom-2">
+                                    <div className="text-sm text-slate-600 dark:text-slate-300">
+                                        <span className="font-bold block mb-1">Analysis:</span>
+                                        {questions[currentQuestionIdx].explanation}
                                     </div>
+                                    <button onClick={nextQuestion} className="px-6 py-2 bg-navy-900 dark:bg-white text-white dark:text-black font-bold rounded-lg ml-4 whitespace-nowrap">
+                                        Next <ArrowRight className="w-4 h-4 inline ml-1" />
+                                    </button>
                                 </div>
                             )}
                         </div>
                     )}
                 </div>
             </div>
-
             <SuccessModal 
                 isOpen={showXPModal}
                 onClose={() => { setShowXPModal(false); onClose(); }}
                 xpEarned={150}
-                title="Checkpoint Cleared 🛡️"
-                message="You have demonstrated theoretical competence. Proceed to practical application."
+                title="Checkpoint Cleared"
             />
         </div>
     );

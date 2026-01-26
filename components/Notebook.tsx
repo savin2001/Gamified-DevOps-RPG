@@ -330,7 +330,7 @@ ${entry.plan.map(p => `- ${p.goal}`).join('\n')}
                         
                         <div className="flex gap-4 text-xs font-mono pt-2 border-t border-gray-800">
                              <span className="text-blue-400">Energy: {entry.energy}/10</span>
-                             <span className="text-purple-400">Confidence: {entry.confidence}/10</span>
+                             <span className="text-navy-400">Confidence: {entry.confidence}/10</span>
                              <span className="text-gray-400">Mood: {entry.mood}</span>
                         </div>
                     </div>

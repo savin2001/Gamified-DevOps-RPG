@@ -322,6 +322,40 @@ export const LAB_DATA: Record<number, LabDefinition> = {
     verificationCommand: "df -hT | grep efs",
     expectedOutput: "127.0.0.1:/"
   },
+  14: {
+    id: "LAB-014",
+    type: "Lab",
+    weekId: 14,
+    title: "Containerize Web Application",
+    duration: "60 min",
+    difficulty: "Intermediate",
+    objectives: ["Dockerfiles", "Docker Compose", "ECR Push"],
+    prerequisites: ["Docker Installed"],
+    steps: [
+      { title: "Build", instruction: "Write Dockerfile for Node.js app." },
+      { title: "Run", instruction: "Run container locally mapping ports.", command: "docker run -p 80:3000 my-app" },
+      { title: "Push", instruction: "Tag and push image to AWS ECR." }
+    ],
+    verificationCommand: "docker images",
+    expectedOutput: "my-app"
+  },
+  15: {
+    id: "LAB-015",
+    type: "Lab",
+    weekId: 15,
+    title: "Deploy Microservices on ECS",
+    duration: "90 min",
+    difficulty: "Intermediate",
+    objectives: ["Task Definitions", "Fargate Service", "ALB Integration"],
+    prerequisites: ["Week 14 Lab"],
+    steps: [
+      { title: "Cluster", instruction: "Create ECS Fargate Cluster." },
+      { title: "Task Def", instruction: "Register task definition pointing to ECR image." },
+      { title: "Service", instruction: "Create Service with 2 desired tasks and ALB." }
+    ],
+    verificationCommand: "aws ecs list-services --cluster my-cluster",
+    expectedOutput: "serviceArns"
+  },
   16: {
     id: "PROJ-004",
     type: "Project",
@@ -338,6 +372,57 @@ export const LAB_DATA: Record<number, LabDefinition> = {
     ],
     verificationCommand: "aws ec2 describe-vpc-peering-connections",
     expectedOutput: "\"Status\": { \"Code\": \"active\" }"
+  },
+  17: {
+    id: "LAB-017",
+    type: "Lab",
+    weekId: 17,
+    title: "Deploy VPC with Terraform",
+    duration: "60 min",
+    difficulty: "Intermediate",
+    objectives: ["HCL Syntax", "Terraform Plan/Apply", "VPC Resource"],
+    prerequisites: ["Terraform Installed"],
+    steps: [
+      { title: "Write Code", instruction: "Define VPC, Subnets, and IGW in main.tf." },
+      { title: "Init", instruction: "Initialize provider.", command: "terraform init" },
+      { title: "Apply", instruction: "Provision infrastructure.", command: "terraform apply -auto-approve" }
+    ],
+    verificationCommand: "aws ec2 describe-vpcs --filters Name=tag:Name,Values=TerraformVPC",
+    expectedOutput: "TerraformVPC"
+  },
+  18: {
+    id: "LAB-018",
+    type: "Lab",
+    weekId: 18,
+    title: "Multi-Environment Infrastructure",
+    duration: "90 min",
+    difficulty: "Advanced",
+    objectives: ["Terraform Modules", "Workspaces", "State Locking"],
+    prerequisites: ["Week 17 Lab"],
+    steps: [
+      { title: "Modularize", instruction: "Move VPC logic into a reusable module." },
+      { title: "Workspaces", instruction: "Create 'dev' and 'prod' workspaces.", command: "terraform workspace new prod" },
+      { title: "Deploy", instruction: "Deploy distinct infra for both environments." }
+    ],
+    verificationCommand: "terraform workspace list",
+    expectedOutput: "* prod"
+  },
+  19: {
+    id: "LAB-019",
+    type: "Lab",
+    weekId: 19,
+    title: "CloudFormation vs Terraform",
+    duration: "60 min",
+    difficulty: "Intermediate",
+    objectives: ["YAML Templates", "Stack Creation", "Drift Detection"],
+    prerequisites: ["AWS CLI"],
+    steps: [
+      { title: "Template", instruction: "Write CFN template for an S3 bucket." },
+      { title: "Deploy", instruction: "Create Stack via CLI.", command: "aws cloudformation create-stack --stack-name my-stack..." },
+      { title: "Compare", instruction: "Analyze differences in state management vs Terraform." }
+    ],
+    verificationCommand: "aws cloudformation describe-stacks --stack-name my-stack",
+    expectedOutput: "CREATE_COMPLETE"
   },
   20: {
     id: "PROJ-005",
@@ -356,6 +441,57 @@ export const LAB_DATA: Record<number, LabDefinition> = {
     verificationCommand: "curl http://<managed-node-ip>",
     expectedOutput: "Welcome to nginx"
   },
+  21: {
+    id: "LAB-021",
+    type: "Lab",
+    weekId: 21,
+    title: "Basic CI/CD Pipeline",
+    duration: "90 min",
+    difficulty: "Intermediate",
+    objectives: ["Jenkins Setup", "Pipeline Syntax", "Git Webhooks"],
+    prerequisites: ["EC2 for Jenkins"],
+    steps: [
+      { title: "Install", instruction: "Install Jenkins on EC2." },
+      { title: "Pipeline", instruction: "Create Jenkinsfile with Build/Test stages." },
+      { title: "Trigger", instruction: "Config GitHub webhook to trigger build on push." }
+    ],
+    verificationCommand: "curl -I http://<jenkins-ip>:8080",
+    expectedOutput: "Jenkins"
+  },
+  22: {
+    id: "LAB-022",
+    type: "Lab",
+    weekId: 22,
+    title: "End-to-End AWS CI/CD",
+    duration: "90 min",
+    difficulty: "Intermediate",
+    objectives: ["CodeCommit", "CodeBuild", "CodeDeploy"],
+    prerequisites: ["Week 2 Lab"],
+    steps: [
+      { title: "Source", instruction: "Repo in CodeCommit." },
+      { title: "Build", instruction: "buildspec.yml for artifacts." },
+      { title: "Deploy", instruction: "appspec.yml for EC2 deployment." }
+    ],
+    verificationCommand: "aws codepipeline get-pipeline-state --name my-pipeline",
+    expectedOutput: "Succeeded"
+  },
+  23: {
+    id: "LAB-023",
+    type: "Lab",
+    weekId: 23,
+    title: "GitHub Actions to AWS",
+    duration: "60 min",
+    difficulty: "Intermediate",
+    objectives: ["OIDC Auth", "Workflow YAML", "S3 Sync"],
+    prerequisites: ["GitHub Repo"],
+    steps: [
+      { title: "Auth", instruction: "Config OIDC provider in IAM for GitHub." },
+      { title: "Workflow", instruction: "Create .github/workflows/deploy.yml." },
+      { title: "Run", instruction: "Push change to trigger sync to S3 bucket." }
+    ],
+    verificationCommand: "echo 'Check Actions Tab'",
+    expectedOutput: "Check Actions Tab"
+  },
   24: {
     id: "PROJ-006",
     type: "Project",
@@ -372,6 +508,40 @@ export const LAB_DATA: Record<number, LabDefinition> = {
     ],
     verificationCommand: "aws deploy list-deployments",
     expectedOutput: "deploymentId"
+  },
+  25: {
+    id: "LAB-025",
+    type: "Lab",
+    weekId: 25,
+    title: "Implement DR Solution",
+    duration: "120 min",
+    difficulty: "Advanced",
+    objectives: ["Pilot Light", "Read Replica", "Failover"],
+    prerequisites: ["RDS DB"],
+    steps: [
+      { title: "Replica", instruction: "Create Cross-Region Read Replica for RDS." },
+      { title: "AMI", instruction: "Copy App Server AMI to secondary region." },
+      { title: "Drill", instruction: "Simulate failure: Promote replica and launch EC2." }
+    ],
+    verificationCommand: "aws rds describe-db-instances --region us-west-2",
+    expectedOutput: "available"
+  },
+  26: {
+    id: "LAB-026",
+    type: "Lab",
+    weekId: 26,
+    title: "Cost Optimization Analysis",
+    duration: "60 min",
+    difficulty: "Intermediate",
+    objectives: ["Cost Explorer", "Budgets", "Rightsizing"],
+    prerequisites: ["Active Resources"],
+    steps: [
+      { title: "Analyze", instruction: "Use Cost Explorer to find top spending services." },
+      { title: "Budget", instruction: "Create a monthly budget with email alert." },
+      { title: "Rightsize", instruction: "Check Compute Optimizer recommendations." }
+    ],
+    verificationCommand: "aws budgets describe-budgets",
+    expectedOutput: "Budget"
   },
   27: {
     id: "PROJ-007",
@@ -390,6 +560,58 @@ export const LAB_DATA: Record<number, LabDefinition> = {
     verificationCommand: "echo 'Design Uploaded'",
     expectedOutput: "Design Uploaded"
   },
+  // --- Phase 3: Advanced Operations ---
+  29: {
+    id: "LAB-029",
+    type: "Lab",
+    weekId: 29,
+    title: "Local K8s with Minikube",
+    duration: "45 min",
+    difficulty: "Beginner",
+    objectives: ["Minikube Install", "Kubectl Config", "First Pod"],
+    prerequisites: ["Docker"],
+    steps: [
+      { title: "Install", instruction: "Install Minikube and Kubectl." },
+      { title: "Start", instruction: "Start local cluster.", command: "minikube start" },
+      { title: "Deploy", instruction: "Run Nginx pod." }
+    ],
+    verificationCommand: "kubectl get nodes",
+    expectedOutput: "Ready"
+  },
+  30: {
+    id: "LAB-030",
+    type: "Lab",
+    weekId: 30,
+    title: "Deploy Multi-Tier App on K8s",
+    duration: "60 min",
+    difficulty: "Intermediate",
+    objectives: ["Deployments", "Services", "Secrets"],
+    prerequisites: ["Running Cluster"],
+    steps: [
+      { title: "Secret", instruction: "Create secret for DB password." },
+      { title: "Backend", instruction: "Deploy Redis/MySQL deployment." },
+      { title: "Frontend", instruction: "Deploy Web App exposing Service type NodePort." }
+    ],
+    verificationCommand: "kubectl get pods",
+    expectedOutput: "Running"
+  },
+  31: {
+    id: "LAB-031",
+    type: "Lab",
+    weekId: 31,
+    title: "Production EKS Cluster",
+    duration: "90 min",
+    difficulty: "Advanced",
+    objectives: ["EKSCTL", "Node Groups", "IAM OIDC"],
+    prerequisites: ["AWS Account"],
+    steps: [
+      { title: "Create", instruction: "Use eksctl to launch cluster.", command: "eksctl create cluster..." },
+      { title: "Context", instruction: "Update kubeconfig." },
+      { title: "Verify", instruction: "Check nodes are joined." }
+    ],
+    verificationCommand: "aws eks describe-cluster --name my-cluster",
+    expectedOutput: "ACTIVE"
+  },
   32: {
     id: "PROJ-008",
     type: "Project",
@@ -406,6 +628,57 @@ export const LAB_DATA: Record<number, LabDefinition> = {
     ],
     verificationCommand: "kubectl get ingress",
     expectedOutput: "ADDRESS"
+  },
+  33: {
+    id: "LAB-033",
+    type: "Lab",
+    weekId: 33,
+    title: "Centralized Logging (ELK)",
+    duration: "120 min",
+    difficulty: "Advanced",
+    objectives: ["Elasticsearch", "Fluentd/Logstash", "Kibana"],
+    prerequisites: ["K8s Cluster"],
+    steps: [
+      { title: "Deploy ES", instruction: "Deploy Elasticsearch statefulset." },
+      { title: "Collector", instruction: "Deploy Fluentd as DaemonSet to collect logs." },
+      { title: "Visualize", instruction: "Access Kibana dashboard." }
+    ],
+    verificationCommand: "kubectl get pods -l app=elasticsearch",
+    expectedOutput: "Running"
+  },
+  34: {
+    id: "LAB-034",
+    type: "Lab",
+    weekId: 34,
+    title: "Monitoring with Prometheus",
+    duration: "90 min",
+    difficulty: "Advanced",
+    objectives: ["Prometheus Server", "Node Exporter", "Grafana"],
+    prerequisites: ["K8s Cluster"],
+    steps: [
+      { title: "Prometheus", instruction: "Install Prometheus stack via Helm." },
+      { title: "Grafana", instruction: "Access Grafana and import Node Exporter dashboard." },
+      { title: "Query", instruction: "Run a PromQL query for CPU usage." }
+    ],
+    verificationCommand: "kubectl get pods -n monitoring",
+    expectedOutput: "prometheus"
+  },
+  35: {
+    id: "LAB-035",
+    type: "Lab",
+    weekId: 35,
+    title: "APM Implementation",
+    duration: "60 min",
+    difficulty: "Intermediate",
+    objectives: ["X-Ray/Datadog", "Tracing", "Instrumentation"],
+    prerequisites: ["Sample App"],
+    steps: [
+      { title: "Instrument", instruction: "Add X-Ray SDK to Node.js app." },
+      { title: "Daemon", instruction: "Run X-Ray daemon sidecar." },
+      { title: "Analyze", instruction: "View Service Map in AWS Console." }
+    ],
+    verificationCommand: "aws xray get-trace-summaries --start-time ...",
+    expectedOutput: "Id"
   },
   36: {
     id: "PROJ-009",
@@ -424,6 +697,40 @@ export const LAB_DATA: Record<number, LabDefinition> = {
     verificationCommand: "echo 'Observability Live'",
     expectedOutput: "Observability Live"
   },
+  37: {
+    id: "LAB-037",
+    type: "Lab",
+    weekId: 37,
+    title: "Secure Kubernetes Cluster",
+    duration: "90 min",
+    difficulty: "Advanced",
+    objectives: ["Network Policies", "RBAC", "Pod Security"],
+    prerequisites: ["K8s Cluster"],
+    steps: [
+      { title: "NetPol", instruction: "Deny all ingress traffic by default." },
+      { title: "RBAC", instruction: "Create 'developer' role with read-only access." },
+      { title: "Scan", instruction: "Run kube-bench/trivy scan." }
+    ],
+    verificationCommand: "kubectl auth can-i create pods --as=developer",
+    expectedOutput: "no"
+  },
+  38: {
+    id: "LAB-038",
+    type: "Lab",
+    weekId: 38,
+    title: "K8s Troubleshooting Scenarios",
+    duration: "120 min",
+    difficulty: "Advanced",
+    objectives: ["CrashLoopBackOff", "Pending Pods", "DNS Issues"],
+    prerequisites: ["Broken Cluster (Simulated)"],
+    steps: [
+      { title: "Scenario 1", instruction: "Fix pod failing liveness probe." },
+      { title: "Scenario 2", instruction: "Debug service not reachable (Endpoints)." },
+      { title: "Scenario 3", instruction: "Resolve PV/PVC binding issue." }
+    ],
+    verificationCommand: "kubectl get pods --field-selector=status.phase!=Running",
+    expectedOutput: "No resources found"
+  },
   39: {
     id: "PROJ-010",
     type: "Project",
@@ -441,6 +748,58 @@ export const LAB_DATA: Record<number, LabDefinition> = {
     verificationCommand: "kubectl get hpa",
     expectedOutput: "TARGETS"
   },
+  // --- Phase 4: Professional Mastery ---
+  41: {
+    id: "LAB-041",
+    type: "Lab",
+    weekId: 41,
+    title: "Microservices Implementation",
+    duration: "90 min",
+    difficulty: "Advanced",
+    objectives: ["API Gateway", "Lambda Integration", "Saga Pattern"],
+    prerequisites: ["AWS Account"],
+    steps: [
+      { title: "API", instruction: "Create REST API in API Gateway." },
+      { title: "Backend", instruction: "Integrate with Order and Payment Lambdas." },
+      { title: "Flow", instruction: "Test successful transaction flow." }
+    ],
+    verificationCommand: "curl -X POST https://<api-id>.execute-api...",
+    expectedOutput: "Order Placed"
+  },
+  42: {
+    id: "LAB-042",
+    type: "Lab",
+    weekId: 42,
+    title: "Serverless Data Processing",
+    duration: "90 min",
+    difficulty: "Advanced",
+    objectives: ["S3 Event Notifications", "SQS", "Lambda"],
+    prerequisites: ["Week 41 Lab"],
+    steps: [
+      { title: "Bucket", instruction: "Create input S3 bucket." },
+      { title: "Process", instruction: "Config event -> SQS -> Lambda processor." },
+      { title: "Store", instruction: "Lambda writes result to DynamoDB." }
+    ],
+    verificationCommand: "aws dynamodb scan --table-name ProcessedData",
+    expectedOutput: "Count"
+  },
+  43: {
+    id: "LAB-043",
+    type: "Lab",
+    weekId: 43,
+    title: "Enterprise Security Posture",
+    duration: "60 min",
+    difficulty: "Advanced",
+    objectives: ["Security Hub", "GuardDuty", "Config Rules"],
+    prerequisites: ["AWS Organization"],
+    steps: [
+      { title: "Enable", instruction: "Turn on Security Hub and GuardDuty." },
+      { title: "Rules", instruction: "Deploy Config rule for encrypted volumes." },
+      { title: "Remediate", instruction: "Fix one critical finding." }
+    ],
+    verificationCommand: "aws securityhub get-findings --filters '{\"RecordState\":[{\"Value\":\"ACTIVE\",\"Comparison\":\"EQUALS\"}]}'",
+    expectedOutput: "Findings"
+  },
   44: {
     id: "PROJ-011",
     type: "Project",
@@ -457,6 +816,40 @@ export const LAB_DATA: Record<number, LabDefinition> = {
     ],
     verificationCommand: "aws dms describe-replication-tasks",
     expectedOutput: "stopped"
+  },
+  45: {
+    id: "LAB-045",
+    type: "Lab",
+    weekId: 45,
+    title: "Enterprise Network Topology",
+    duration: "120 min",
+    difficulty: "Expert",
+    objectives: ["Transit Gateway", "VPN", "Direct Connect Sim"],
+    prerequisites: ["Multiple VPCs"],
+    steps: [
+      { title: "TGW", instruction: "Create Transit Gateway and attachments." },
+      { title: "VPN", instruction: "Setup Site-to-Site VPN connection." },
+      { title: "Routing", instruction: "Update route tables for full connectivity." }
+    ],
+    verificationCommand: "aws ec2 describe-transit-gateways",
+    expectedOutput: "available"
+  },
+  46: {
+    id: "LAB-046",
+    type: "Lab",
+    weekId: 46,
+    title: "FinOps Cost Project",
+    duration: "60 min",
+    difficulty: "Advanced",
+    objectives: ["Cost Allocation Tags", "Reports", "Anomalies"],
+    prerequisites: ["Billing Access"],
+    steps: [
+      { title: "Tags", instruction: "Enforce 'CostCenter' tag policy." },
+      { title: "Report", instruction: "Schedule weekly CUR (Cost & Usage Report)." },
+      { title: "Alert", instruction: "Config Anomaly Detection alert." }
+    ],
+    verificationCommand: "aws ce get-cost-and-usage ...",
+    expectedOutput: "ResultsByTime"
   },
   47: {
     id: "PROJ-012",

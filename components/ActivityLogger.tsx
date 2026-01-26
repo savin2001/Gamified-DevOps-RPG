@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { ActivityType } from '../types';
 import { XP_VALUES } from '../constants';
@@ -38,7 +39,7 @@ const ActivityLogger: React.FC<ActivityLoggerProps> = ({ onLog }) => {
   const buttons = [
     { type: ActivityType.STUDY_SESSION, icon: Book, label: 'Study Session', color: 'bg-blue-600 hover:bg-blue-700' },
     { type: ActivityType.LAB_SESSION, icon: Terminal, label: 'Lab Work', color: 'bg-green-600 hover:bg-green-700' },
-    { type: ActivityType.PROJECT_WORK, icon: Code, label: 'Project', color: 'bg-purple-600 hover:bg-purple-700' },
+    { type: ActivityType.PROJECT_WORK, icon: Code, label: 'Project', color: 'bg-navy-600 hover:bg-navy-700' },
     { type: ActivityType.BLOG_POST, icon: Edit3, label: 'Blog Post', color: 'bg-orange-600 hover:bg-orange-700' },
     { type: ActivityType.GITHUB_COMMIT, icon: Github, label: 'GitHub Commit', color: 'bg-gray-700 hover:bg-gray-600' },
   ];

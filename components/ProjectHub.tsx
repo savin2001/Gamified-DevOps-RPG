@@ -25,7 +25,6 @@ const ProjectHub: React.FC<ProjectHubProps> = ({ onActivityLogged }) => {
     setSavedSubmissions(getLabSubmissions());
   }, []);
 
-  // Auto-start timer when project initializes
   useEffect(() => {
     if (activeProjectId) {
         timerRef.current?.reset();
@@ -85,13 +84,13 @@ const ProjectHub: React.FC<ProjectHubProps> = ({ onActivityLogged }) => {
     <div className="space-y-8 relative">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-            <h2 className="text-3xl font-bold text-white tracking-tight flex items-center gap-3">
-                <span className="p-2 bg-gradient-to-br from-purple-500/20 to-indigo-500/10 rounded-xl border border-white/10">
-                    <Box className="text-purple-400 w-6 h-6" />
+            <h2 className="text-3xl font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-3">
+                <span className="p-2 bg-gradient-to-br from-navy-500/20 to-blue-500/10 rounded-xl border border-slate-200 dark:border-white/10">
+                    <Box className="text-navy-600 dark:text-navy-400 w-6 h-6" />
                 </span>
                 Project Portfolio
             </h2>
-            <p className="text-gray-400 mt-1 ml-1 text-sm">Capstone challenges to prove your engineering skills.</p>
+            <p className="text-slate-500 dark:text-gray-400 mt-1 ml-1 text-sm">Capstone challenges to prove your engineering skills.</p>
         </div>
         
         <div className="flex items-center gap-4">
@@ -104,8 +103,8 @@ const ProjectHub: React.FC<ProjectHubProps> = ({ onActivityLogged }) => {
                 onClick={() => setIsReviewMode(!isReviewMode)}
                 className={`flex items-center gap-2 px-4 py-2 rounded-full border transition-all ${
                     isReviewMode 
-                    ? 'bg-yellow-500/10 border-yellow-500/30 text-yellow-400 hover:bg-yellow-500/20' 
-                    : 'bg-white/5 border-white/10 text-gray-400 hover:text-white hover:bg-white/10'
+                    ? 'bg-gold-100 dark:bg-gold-900/20 border-gold-200 dark:border-gold-800 text-gold-700 dark:text-gold-400 hover:bg-gold-200 dark:hover:bg-gold-900/30' 
+                    : 'bg-white dark:bg-white/5 border-slate-200 dark:border-white/10 text-slate-500 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-50 dark:hover:bg-white/10'
                 }`}
             >
                 {isReviewMode ? (
@@ -124,7 +123,7 @@ const ProjectHub: React.FC<ProjectHubProps> = ({ onActivityLogged }) => {
       </div>
 
       {activeProjectId ? (
-        <div className="bg-black/40 backdrop-blur-xl rounded-3xl border border-white/10 overflow-hidden shadow-2xl animate-in fade-in slide-in-from-bottom-8">
+        <div className="bg-white dark:bg-surface-cardDark backdrop-blur-xl rounded-3xl border border-slate-200 dark:border-white/10 overflow-hidden shadow-2xl animate-in fade-in slide-in-from-bottom-8">
            {(() => {
              const proj = Object.values(LAB_DATA).find(l => l.id === activeProjectId);
              if (!proj) return null;
@@ -134,25 +133,25 @@ const ProjectHub: React.FC<ProjectHubProps> = ({ onActivityLogged }) => {
              return (
                  <div className="flex flex-col h-[800px] lg:h-[700px] lg:flex-row">
                     {/* Sidebar / Instructions */}
-                    <div className="lg:w-1/3 border-b lg:border-b-0 lg:border-r border-white/10 flex flex-col bg-gray-900/50">
-                        <div className={`p-6 border-b border-white/10 ${isReviewMode ? 'bg-yellow-500/5' : 'bg-purple-900/10'}`}>
+                    <div className="lg:w-1/3 border-b lg:border-b-0 lg:border-r border-slate-200 dark:border-white/10 flex flex-col bg-slate-50 dark:bg-black/20">
+                        <div className={`p-6 border-b border-slate-200 dark:border-white/10 ${isReviewMode ? 'bg-gold-50 dark:bg-gold-900/10' : 'bg-navy-50 dark:bg-navy-900/20'}`}>
                             <div className="flex items-center gap-2 mb-2">
-                                <span className="text-xs font-mono text-purple-400 bg-purple-500/10 px-2 py-0.5 rounded border border-purple-500/20">PROJ-{proj.weekId}</span>
+                                <span className="text-xs font-mono text-navy-600 dark:text-navy-400 bg-navy-100 dark:bg-navy-500/10 px-2 py-0.5 rounded border border-navy-200 dark:border-navy-500/20">PROJ-{proj.weekId}</span>
                                 {isReviewMode ? (
-                                    <span className="text-[10px] font-bold text-yellow-500 border border-yellow-500/20 px-2 py-0.5 rounded bg-yellow-500/10">READ ONLY</span>
+                                    <span className="text-[10px] font-bold text-gold-600 dark:text-gold-500 border border-gold-200 dark:border-gold-500/20 px-2 py-0.5 rounded bg-gold-100 dark:bg-gold-500/10">READ ONLY</span>
                                 ) : (
-                                    <span className="text-xs font-mono text-gray-500">{proj.difficulty}</span>
+                                    <span className="text-xs font-mono text-slate-500 dark:text-gray-500">{proj.difficulty}</span>
                                 )}
                             </div>
-                            <h3 className="text-xl font-bold text-white leading-tight">{proj.title}</h3>
+                            <h3 className="text-xl font-bold text-slate-900 dark:text-white leading-tight">{proj.title}</h3>
                         </div>
                         <div className="flex-1 overflow-y-auto p-6 space-y-8">
                              <div>
-                                <h4 className="text-xs font-bold text-blue-400 uppercase tracking-wider mb-3">Milestones</h4>
+                                <h4 className="text-xs font-bold text-navy-600 dark:text-navy-400 uppercase tracking-wider mb-3">Milestones</h4>
                                 <ul className="space-y-3">
                                     {proj.objectives.map((o, i) => (
-                                        <li key={i} className="flex gap-3 text-sm text-gray-300">
-                                            <div className="mt-1.5 w-1.5 h-1.5 rounded-full bg-purple-500 shadow-[0_0_5px_rgba(168,85,247,0.5)]"></div>
+                                        <li key={i} className="flex gap-3 text-sm text-slate-600 dark:text-gray-300">
+                                            <div className="mt-1.5 w-1.5 h-1.5 rounded-full bg-navy-500 shadow-sm"></div>
                                             {o}
                                         </li>
                                     ))}
@@ -160,25 +159,25 @@ const ProjectHub: React.FC<ProjectHubProps> = ({ onActivityLogged }) => {
                              </div>
                              
                              <div className="space-y-6">
-                                <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider">Architecture Steps</h4>
+                                <h4 className="text-xs font-bold text-slate-500 dark:text-gray-400 uppercase tracking-wider">Architecture Steps</h4>
                                 {proj.steps.map((step, i) => (
-                                    <div key={i} className="bg-white/5 rounded-xl p-4 border border-white/5">
-                                        <h5 className="text-sm font-bold text-white mb-2 flex justify-between">
+                                    <div key={i} className="bg-white dark:bg-white/5 rounded-xl p-4 border border-slate-200 dark:border-white/5 shadow-sm">
+                                        <h5 className="text-sm font-bold text-slate-900 dark:text-white mb-2 flex justify-between">
                                             {step.title}
-                                            <span className="text-[10px] text-gray-600 font-mono">STEP 0{i+1}</span>
+                                            <span className="text-[10px] text-slate-400 dark:text-gray-600 font-mono">STEP 0{i+1}</span>
                                         </h5>
-                                        <p className="text-xs text-gray-400 leading-relaxed">{step.instruction}</p>
+                                        <p className="text-xs text-slate-600 dark:text-gray-400 leading-relaxed">{step.instruction}</p>
                                     </div>
                                 ))}
                              </div>
                         </div>
-                        <div className="p-4 border-t border-white/10 bg-black/20">
+                        <div className="p-4 border-t border-slate-200 dark:border-white/10 bg-slate-100 dark:bg-black/20">
                             <button 
                                 onClick={() => { 
                                     if (!isReviewMode) handleSaveDraft(proj.id); 
                                     else setActiveProjectId(null);
                                 }}  
-                                className="w-full text-xs text-gray-500 hover:text-white transition-colors flex items-center justify-center gap-2"
+                                className="w-full text-xs text-slate-500 dark:text-gray-500 hover:text-slate-900 dark:hover:text-white transition-colors flex items-center justify-center gap-2"
                             >
                                 {isReviewMode ? '← Return to Hub' : '← Save Draft & Return'}
                             </button>
@@ -186,9 +185,7 @@ const ProjectHub: React.FC<ProjectHubProps> = ({ onActivityLogged }) => {
                     </div>
 
                     {/* Main / Terminal */}
-                    <div className="lg:w-2/3 flex flex-col bg-[#0f0b14] relative">
-                         <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-5 pointer-events-none"></div>
-                         
+                    <div className="lg:w-2/3 flex flex-col bg-[#0f172a] relative"> {/* Navy 950 - Standard terminal color */}
                          <div className="flex items-center justify-between p-3 bg-white/5 border-b border-white/5">
                              <div className="flex gap-2">
                                  <div className="w-3 h-3 rounded-full bg-red-500/20"></div>
@@ -200,34 +197,34 @@ const ProjectHub: React.FC<ProjectHubProps> = ({ onActivityLogged }) => {
                              </div>
                          </div>
 
-                         <div className="flex-1 p-8 font-mono text-sm overflow-hidden flex flex-col">
+                         <div className="flex-1 p-8 font-mono text-sm overflow-hidden flex flex-col text-slate-300">
                              <div className="text-gray-500 mb-6">
                                  DevOps Quest Deployment Manager<br/>
                                  Target: {proj.title}<br/>
                                  {isReviewMode ? 'System Status: READ_ONLY_MOUNT' : 'Initiating verification sequence...'}
                              </div>
                              
-                             <div className={`flex-1 bg-black/50 border ${isReviewMode ? 'border-yellow-500/10' : 'border-white/10'} rounded-xl p-6 relative overflow-hidden shadow-inner`}>
-                                 <div className="absolute top-3 right-3 text-[10px] text-purple-500/50 font-bold border border-purple-900 rounded px-2">DEPLOY LOGS</div>
+                             <div className={`flex-1 bg-black/50 border ${isReviewMode ? 'border-gold-500/10' : 'border-white/10'} rounded-xl p-6 relative overflow-hidden shadow-inner`}>
+                                 <div className="absolute top-3 right-3 text-[10px] text-navy-400 font-bold border border-navy-800 rounded px-2">DEPLOY LOGS</div>
                                  <textarea 
                                     readOnly={isReviewMode}
                                     value={output}
                                     onChange={(e) => setOutput(e.target.value)}
-                                    className={`w-full h-full bg-transparent ${isReviewMode ? 'text-gray-500 cursor-not-allowed' : 'text-purple-300'} focus:outline-none resize-none leading-relaxed`}
+                                    className={`w-full h-full bg-transparent ${isReviewMode ? 'text-gray-500 cursor-not-allowed' : 'text-navy-300'} focus:outline-none resize-none leading-relaxed`}
                                     placeholder={isReviewMode ? "Terminal input disabled in Review Mode." : `$ ${proj.verificationCommand || "aws verify-stack"}\n\n... waiting for resource output ...\n... ${proj.expectedOutput || "StackId: arn:aws:cloudformation..."}`}
                                     autoFocus={!isReviewMode}
                                  />
                              </div>
                          </div>
 
-                         <div className="p-6 border-t border-white/10 bg-purple-900/10 flex justify-between items-center gap-4">
-                             <span className={`text-xs ${output.length > 2 ? 'text-purple-400' : 'text-gray-600'}`}>
+                         <div className="p-6 border-t border-white/10 bg-navy-900/10 flex justify-between items-center gap-4">
+                             <span className={`text-xs ${output.length > 2 ? 'text-navy-400' : 'text-gray-600'}`}>
                                  {output.length > 2 ? '● Deployment Found' : '○ Waiting for Artifacts'}
                              </span>
 
                              <div className="flex gap-3">
                                 {isReviewMode ? (
-                                    <div className="px-4 py-3 rounded-lg border border-yellow-500/20 text-yellow-500 text-xs font-bold bg-yellow-500/5 flex items-center gap-2">
+                                    <div className="px-4 py-3 rounded-lg border border-gold-500/20 text-gold-500 text-xs font-bold bg-gold-500/5 flex items-center gap-2">
                                         <Lock className="w-3 h-3" /> READ ONLY PREVIEW
                                     </div>
                                 ) : (
@@ -241,7 +238,7 @@ const ProjectHub: React.FC<ProjectHubProps> = ({ onActivityLogged }) => {
                                         <button 
                                             onClick={() => handleCompleteProject(proj.id, proj.weekId)}
                                             disabled={output.length < 2}
-                                            className="bg-purple-600 hover:bg-purple-50 disabled:opacity-50 disabled:grayscale text-white font-bold px-8 py-3 rounded-lg transition-all shadow-[0_0_20px_rgba(147,51,234,0.4)] flex items-center gap-2"
+                                            className="bg-navy-600 hover:bg-navy-500 disabled:opacity-50 disabled:grayscale text-white font-bold px-8 py-3 rounded-lg transition-all shadow-md flex items-center gap-2"
                                         >
                                             <CheckCircle2 className="w-4 h-4" /> 
                                             {isPreviouslyCompleted ? 'Redeploy' : 'Verify Deployment'}
@@ -269,52 +266,49 @@ const ProjectHub: React.FC<ProjectHubProps> = ({ onActivityLogged }) => {
                 key={proj.id} 
                 className={`group relative rounded-3xl p-8 border transition-all duration-300 overflow-hidden ${
                     !canEnter && !isReviewMode
-                        ? 'bg-gray-900/20 border-white/5 opacity-60 grayscale'
+                        ? 'bg-slate-100 dark:bg-white/5 border-slate-200 dark:border-white/5 opacity-60 grayscale'
                         : isCompleted 
-                            ? 'bg-purple-900/10 border-purple-500/30' 
+                            ? 'bg-navy-50 dark:bg-navy-900/10 border-navy-200 dark:border-navy-500/30' 
                             : isInProgress
-                                ? 'bg-indigo-900/10 border-indigo-500/30'
-                                : 'bg-gray-900/40 border-white/10 hover:border-purple-500/50 hover:shadow-[0_0_30px_rgba(168,85,247,0.15)]'
+                                ? 'bg-blue-50 dark:bg-blue-900/10 border-blue-200 dark:border-blue-500/30'
+                                : 'bg-white dark:bg-surface-cardDark border-slate-200 dark:border-white/10 hover:border-navy-300 dark:hover:border-navy-500/50 hover:shadow-lg'
                 }`}
               >
-                {/* Background Decoration */}
-                <div className="absolute top-0 right-0 p-32 bg-purple-500/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 pointer-events-none group-hover:bg-purple-500/10 transition-colors"></div>
-
                 <div className="relative z-10">
                     <div className="flex justify-between items-start mb-6">
-                        <span className="text-[10px] font-bold px-3 py-1 rounded-full border border-purple-500/30 text-purple-400 bg-purple-500/10 uppercase tracking-widest">
+                        <span className="text-[10px] font-bold px-3 py-1 rounded-full border border-navy-200 dark:border-navy-500/30 text-navy-600 dark:text-navy-400 bg-navy-100 dark:bg-navy-500/10 uppercase tracking-widest">
                             {proj.difficulty}
                         </span>
                         {isCompleted ? (
-                            <div className="p-1.5 bg-green-500 rounded-full shadow-[0_0_10px_rgba(34,197,94,0.6)]">
-                                <CheckCircle2 className="w-4 h-4 text-black" />
+                            <div className="p-1.5 bg-brand-500 rounded-full shadow-sm">
+                                <CheckCircle2 className="w-4 h-4 text-white" />
                             </div>
                         ) : isInProgress ? (
-                            <div className="p-1.5 bg-blue-500 rounded-full shadow-[0_0_10px_rgba(59,130,246,0.6)]">
+                            <div className="p-1.5 bg-navy-500 rounded-full shadow-sm">
                                 <History className="w-4 h-4 text-white" />
                             </div>
                         ) : isUnlocked ? (
-                            <div className="p-1.5 bg-blue-500/20 rounded-full border border-blue-500/50">
-                                <Unlock className="w-4 h-4 text-blue-400" />
+                            <div className="p-1.5 bg-navy-100 dark:bg-navy-500/20 rounded-full border border-navy-200 dark:border-navy-500/50">
+                                <Unlock className="w-4 h-4 text-navy-600 dark:text-navy-400" />
                             </div>
                         ) : (
-                            <Lock className="w-5 h-5 text-gray-700" />
+                            <Lock className="w-5 h-5 text-slate-400 dark:text-gray-600" />
                         )}
                     </div>
                     
-                    <h3 className="text-2xl font-bold text-white mb-2 leading-tight group-hover:text-purple-200 transition-colors">{proj.title}</h3>
-                    <p className="text-sm font-mono text-gray-500 mb-6">PROJ-{String(proj.weekId).padStart(3,'0')} // {proj.duration.toUpperCase()}</p>
+                    <h3 className="text-2xl font-bold text-slate-900 dark:text-white mb-2 leading-tight group-hover:text-navy-600 dark:group-hover:text-navy-200 transition-colors">{proj.title}</h3>
+                    <p className="text-sm font-mono text-slate-500 dark:text-gray-500 mb-6">PROJ-{String(proj.weekId).padStart(3,'0')} // {proj.duration.toUpperCase()}</p>
                     
                     <div className="flex flex-wrap gap-2 mb-8">
                         {proj.objectives.slice(0, 3).map((obj, i) => (
-                            <span key={i} className="text-[10px] bg-black/40 text-gray-300 px-2 py-1 rounded border border-white/10">
+                            <span key={i} className="text-[10px] bg-slate-100 dark:bg-black/40 text-slate-600 dark:text-gray-300 px-2 py-1 rounded border border-slate-200 dark:border-white/10">
                                 {obj}
                             </span>
                         ))}
                     </div>
 
                     {!isUnlocked && !isCompleted && !isInProgress && !isReviewMode && (
-                        <div className="flex items-center gap-2 text-[10px] text-red-400 bg-red-500/5 p-3 rounded-lg border border-red-500/10 mb-6">
+                        <div className="flex items-center gap-2 text-[10px] text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-500/5 p-3 rounded-lg border border-red-200 dark:border-red-500/10 mb-6">
                             <AlertTriangle className="w-4 h-4" />
                             <span>LOCKED: Complete all Phase Labs first.</span>
                         </div>
@@ -324,11 +318,11 @@ const ProjectHub: React.FC<ProjectHubProps> = ({ onActivityLogged }) => {
                         onClick={() => setActiveProjectId(proj.id)}
                         disabled={!canEnter}
                         className={`w-full py-4 rounded-xl font-bold text-sm flex items-center justify-center gap-2 transition-all ${
-                            !canEnter ? 'bg-white/5 text-gray-600 cursor-not-allowed' :
-                            isReviewMode ? 'bg-yellow-500/10 text-yellow-400 hover:bg-yellow-500/20' :
-                            isCompleted ? 'bg-purple-500/10 text-purple-400 hover:bg-purple-500/20' :
-                            isInProgress ? 'bg-indigo-600 text-white hover:bg-indigo-500 shadow-lg' :
-                            'bg-white text-black hover:bg-purple-50 shadow-lg shadow-white/10'
+                            !canEnter ? 'bg-slate-100 dark:bg-white/5 text-slate-400 dark:text-gray-600 cursor-not-allowed' :
+                            isReviewMode ? 'bg-gold-50 dark:bg-gold-900/10 text-gold-700 dark:text-gold-400 hover:bg-gold-100 dark:hover:bg-gold-900/20' :
+                            isCompleted ? 'bg-navy-100 dark:bg-navy-900/20 text-navy-700 dark:text-navy-400 hover:bg-navy-200 dark:hover:bg-navy-900/30' :
+                            isInProgress ? 'bg-navy-600 text-white hover:bg-navy-500 shadow-sm' :
+                            'bg-white dark:bg-white text-black hover:bg-navy-50 dark:hover:bg-navy-50 shadow-sm'
                         }`}
                     >
                         {isReviewMode ? 'Preview (Read Only)' : 

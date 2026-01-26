@@ -61,17 +61,17 @@ const AiMentor: React.FC<AiMentorProps> = ({ userStats }) => {
         <div className="fixed bottom-20 md:bottom-6 right-6 z-50 flex flex-col items-end gap-4 font-sans">
             {/* Chat Window */}
             {isOpen && (
-                <div className="bg-devops-card border border-gray-700 shadow-2xl rounded-2xl w-[90vw] sm:w-[350px] md:w-[400px] h-[60vh] sm:h-[500px] flex flex-col overflow-hidden animate-in slide-in-from-bottom-10 fade-in duration-300 origin-bottom-right mb-2">
+                <div className="bg-white dark:bg-devops-card border border-slate-200 dark:border-gray-700 shadow-2xl rounded-2xl w-[90vw] sm:w-[350px] md:w-[400px] h-[60vh] sm:h-[500px] flex flex-col overflow-hidden animate-in slide-in-from-bottom-10 fade-in duration-300 origin-bottom-right mb-2">
                     {/* Header */}
-                    <div className="p-4 border-b border-gray-700 bg-gray-800/80 backdrop-blur-sm flex justify-between items-center">
+                    <div className="p-4 border-b border-slate-200 dark:border-gray-700 bg-slate-50/90 dark:bg-gray-800/80 backdrop-blur-sm flex justify-between items-center">
                         <div className="flex items-center gap-2">
-                            <div className="p-1.5 bg-devops-accent/20 rounded-lg">
-                                <Bot className="w-5 h-5 text-devops-accent" />
+                            <div className="p-1.5 bg-emerald-100 dark:bg-emerald-500/20 rounded-lg">
+                                <Bot className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
                             </div>
                             <div>
-                                <h3 className="font-bold text-white text-sm">DevOps Mentor</h3>
-                                <p className="text-[10px] text-green-400 flex items-center gap-1">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
+                                <h3 className="font-bold text-slate-900 dark:text-white text-sm">DevOps Mentor</h3>
+                                <p className="text-[10px] text-emerald-600 dark:text-green-400 flex items-center gap-1">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                                     Online
                                 </p>
                             </div>
@@ -81,14 +81,14 @@ const AiMentor: React.FC<AiMentorProps> = ({ userStats }) => {
                                 <button 
                                     onClick={handleGetMotivation}
                                     title="Get Hype"
-                                    className="p-2 hover:bg-gray-700 rounded-lg text-yellow-400 transition-colors"
+                                    className="p-2 hover:bg-slate-200 dark:hover:bg-gray-700 rounded-lg text-yellow-500 dark:text-yellow-400 transition-colors"
                                 >
                                     <Sparkles className="w-4 h-4" />
                                 </button>
                              )}
                             <button 
                                 onClick={() => setIsOpen(false)}
-                                className="p-2 hover:bg-gray-700 rounded-lg text-gray-400 hover:text-white transition-colors"
+                                className="p-2 hover:bg-slate-200 dark:hover:bg-gray-700 rounded-lg text-slate-500 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white transition-colors"
                             >
                                 <X className="w-4 h-4" />
                             </button>
@@ -96,23 +96,23 @@ const AiMentor: React.FC<AiMentorProps> = ({ userStats }) => {
                     </div>
 
                     {/* Messages */}
-                    <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-900/50">
+                    <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50 dark:bg-gray-900/50">
                         {messages.map((msg) => (
                             <div key={msg.id} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                                <div className={`max-w-[85%] rounded-2xl p-3 text-sm leading-relaxed ${
+                                <div className={`max-w-[85%] rounded-2xl p-3 text-sm leading-relaxed shadow-sm ${
                                     msg.role === 'user' 
-                                        ? 'bg-devops-accent text-white rounded-br-sm' 
-                                        : 'bg-gray-700 text-gray-100 rounded-bl-sm border border-gray-600'
+                                        ? 'bg-blue-600 text-white rounded-br-sm' 
+                                        : 'bg-white dark:bg-gray-700 text-slate-800 dark:text-gray-100 rounded-bl-sm border border-slate-200 dark:border-gray-600'
                                 }`}>
                                     <ReactMarkdown 
                                         components={{
                                             p: ({node, ...props}) => <p className="mb-2 last:mb-0" {...props} />,
-                                            strong: ({node, ...props}) => <span className="font-bold text-yellow-300" {...props} />,
+                                            strong: ({node, ...props}) => <span className={`font-bold ${msg.role === 'user' ? 'text-blue-100' : 'text-slate-900 dark:text-yellow-300'}`} {...props} />,
                                             ul: ({node, ...props}) => <ul className="list-disc list-inside mb-2 space-y-1" {...props} />,
                                             ol: ({node, ...props}) => <ol className="list-decimal list-inside mb-2 space-y-1" {...props} />,
                                             li: ({node, ...props}) => <li className="ml-1" {...props} />,
-                                            code: ({node, ...props}) => <code className="bg-black/30 rounded px-1 py-0.5 font-mono text-xs text-green-300 border border-white/10" {...props} />,
-                                            pre: ({node, ...props}) => <pre className="bg-black/50 p-2 rounded-lg my-2 overflow-x-auto border border-gray-600" {...props} />,
+                                            code: ({node, ...props}) => <code className={`rounded px-1 py-0.5 font-mono text-xs border ${msg.role === 'user' ? 'bg-blue-700 text-blue-100 border-blue-500' : 'bg-slate-100 dark:bg-black/30 text-emerald-600 dark:text-green-300 border-slate-200 dark:border-white/10'}`} {...props} />,
+                                            pre: ({node, ...props}) => <pre className="bg-slate-900 dark:bg-black/50 p-2 rounded-lg my-2 overflow-x-auto border border-slate-700 dark:border-gray-600 text-white" {...props} />,
                                         }}
                                     >
                                         {msg.text}
@@ -122,11 +122,11 @@ const AiMentor: React.FC<AiMentorProps> = ({ userStats }) => {
                         ))}
                         {isLoading && (
                             <div className="flex justify-start">
-                                <div className="bg-gray-700 rounded-2xl rounded-bl-sm p-3 border border-gray-600">
+                                <div className="bg-white dark:bg-gray-700 rounded-2xl rounded-bl-sm p-3 border border-slate-200 dark:border-gray-600 shadow-sm">
                                     <div className="flex gap-1.5">
-                                        <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce"></span>
-                                        <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce delay-100"></span>
-                                        <span className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce delay-200"></span>
+                                        <span className="w-1.5 h-1.5 bg-slate-400 dark:bg-gray-400 rounded-full animate-bounce"></span>
+                                        <span className="w-1.5 h-1.5 bg-slate-400 dark:bg-gray-400 rounded-full animate-bounce delay-100"></span>
+                                        <span className="w-1.5 h-1.5 bg-slate-400 dark:bg-gray-400 rounded-full animate-bounce delay-200"></span>
                                     </div>
                                 </div>
                             </div>
@@ -135,19 +135,19 @@ const AiMentor: React.FC<AiMentorProps> = ({ userStats }) => {
                     </div>
 
                     {/* Input */}
-                    <form onSubmit={handleSend} className="p-3 bg-gray-800/50 border-t border-gray-700">
+                    <form onSubmit={handleSend} className="p-3 bg-white dark:bg-gray-800/50 border-t border-slate-200 dark:border-gray-700">
                         <div className="flex gap-2 relative">
                             <input
                                 type="text"
                                 value={input}
                                 onChange={(e) => setInput(e.target.value)}
                                 placeholder="Ask about Cloud & DevOps..."
-                                className="flex-1 bg-gray-900 border border-gray-600 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-devops-accent focus:ring-1 focus:ring-devops-accent transition-all pr-10"
+                                className="flex-1 bg-slate-100 dark:bg-gray-900 border border-slate-300 dark:border-gray-600 rounded-xl px-4 py-3 text-slate-900 dark:text-white text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all pr-10 placeholder:text-slate-400 dark:placeholder:text-gray-500"
                             />
                             <button 
                                 type="submit" 
                                 disabled={isLoading || !input.trim()}
-                                className="absolute right-2 top-2 p-1.5 bg-devops-accent rounded-lg text-white hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                className="absolute right-2 top-2 p-1.5 bg-blue-600 rounded-lg text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                             >
                                 <Send className="w-4 h-4" />
                             </button>
@@ -160,7 +160,7 @@ const AiMentor: React.FC<AiMentorProps> = ({ userStats }) => {
             <button
                 onClick={() => setIsOpen(!isOpen)}
                 className={`group relative flex items-center justify-center w-14 h-14 rounded-full shadow-lg shadow-blue-500/20 text-white transition-all duration-500 hover:scale-110 active:scale-95 ${
-                    isOpen ? 'rotate-90 bg-gray-700' : 'animate-[pulse_3s_ease-in-out_infinite] bg-gradient-to-tr from-blue-600 via-purple-600 to-indigo-600 bg-[length:200%_200%] animate-gradient-xy'
+                    isOpen ? 'rotate-90 bg-slate-700 dark:bg-gray-700' : 'animate-[pulse_3s_ease-in-out_infinite] bg-gradient-to-tr from-blue-600 via-purple-600 to-indigo-600 bg-[length:200%_200%] animate-gradient-xy'
                 }`}
                 style={{
                     backgroundSize: '200% 200%',
