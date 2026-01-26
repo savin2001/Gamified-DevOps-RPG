@@ -1,6 +1,6 @@
 
 import { ActivityType, CurriculumWeek, LabDefinition, Achievement, UserStats } from './types';
-import { Cloud, Server, Database, Shield, Globe, Cpu, Box, Layout, Code, Rocket, Flame, Target, Zap, Brain, Terminal, Award, Star } from 'lucide-react';
+import { Cloud, Server, Database, Shield, Globe, Cpu, Box, Layout, Code, Rocket, Flame, Target, Zap, Brain, Terminal, Award, Star, BookOpen, Beaker, Layers, PenTool, GraduationCap } from 'lucide-react';
 import React from 'react';
 
 export const XP_VALUES: Record<ActivityType, number> = {
@@ -31,6 +31,7 @@ export const LEVEL_TITLES = [
 ];
 
 export const ACHIEVEMENTS: Achievement[] = [
+  // --- EXISTING ---
   { 
     id: 'first-session', 
     title: 'Hello World', 
@@ -55,6 +56,26 @@ export const ACHIEVEMENTS: Achievement[] = [
     xpReward: 300, 
     condition: (s: UserStats) => s.streak >= 7 
   },
+  
+  // --- STUDY ---
+  { 
+    id: 'study-10', 
+    title: 'Dedicated Student', 
+    description: 'Complete 10 study sessions.', 
+    icon: BookOpen, 
+    xpReward: 150, 
+    condition: (s: UserStats) => s.sessionsCompleted >= 10 
+  },
+  { 
+    id: 'study-25', 
+    title: 'Deep Diver', 
+    description: 'Complete 25 study sessions.', 
+    icon: Brain, 
+    xpReward: 300, 
+    condition: (s: UserStats) => s.sessionsCompleted >= 25 
+  },
+
+  // --- LABS ---
   { 
     id: 'first-lab', 
     title: 'Lab Rat', 
@@ -64,6 +85,24 @@ export const ACHIEVEMENTS: Achievement[] = [
     condition: (s: UserStats) => s.labsCompleted >= 1 
   },
   { 
+    id: 'lab-5', 
+    title: 'Experimenter', 
+    description: 'Complete 5 Labs.', 
+    icon: Beaker, 
+    xpReward: 250, 
+    condition: (s: UserStats) => s.labsCompleted >= 5 
+  },
+  { 
+    id: 'lab-10', 
+    title: 'Protocol Expert', 
+    description: 'Complete 10 Labs.', 
+    icon: Server, 
+    xpReward: 500, 
+    condition: (s: UserStats) => s.labsCompleted >= 10 
+  },
+
+  // --- PROJECTS ---
+  { 
     id: 'project-builder', 
     title: 'Builder', 
     description: 'Complete 1 Project.', 
@@ -72,6 +111,24 @@ export const ACHIEVEMENTS: Achievement[] = [
     condition: (s: UserStats) => s.projectsCompleted >= 1 
   },
   { 
+    id: 'project-3', 
+    title: 'System Integrator', 
+    description: 'Ship 3 Projects.', 
+    icon: Layers, 
+    xpReward: 600, 
+    condition: (s: UserStats) => s.projectsCompleted >= 3 
+  },
+  { 
+    id: 'project-6', 
+    title: 'Solution Architect', 
+    description: 'Ship 6 Projects.', 
+    icon: Box, 
+    xpReward: 1200, 
+    condition: (s: UserStats) => s.projectsCompleted >= 6 
+  },
+
+  // --- QUIZZES ---
+  { 
     id: 'quiz-whiz', 
     title: 'Trivia Buff', 
     description: 'Pass 3 AI Quizzes.', 
@@ -79,6 +136,42 @@ export const ACHIEVEMENTS: Achievement[] = [
     xpReward: 200, 
     condition: (s: UserStats) => s.quizzesCompleted >= 3 
   },
+  { 
+    id: 'quiz-10', 
+    title: 'Knowledge Hunter', 
+    description: 'Pass 10 AI Quizzes.', 
+    icon: Target, 
+    xpReward: 400, 
+    condition: (s: UserStats) => s.quizzesCompleted >= 10 
+  },
+  { 
+    id: 'quiz-25', 
+    title: 'Cloud Encyclopedia', 
+    description: 'Pass 25 AI Quizzes.', 
+    icon: GraduationCap, 
+    xpReward: 800, 
+    condition: (s: UserStats) => s.quizzesCompleted >= 25 
+  },
+
+  // --- BLOGS ---
+  { 
+    id: 'blog-1', 
+    title: 'Technical Writer', 
+    description: 'Publish your first blog post.', 
+    icon: PenTool, 
+    xpReward: 100, 
+    condition: (s: UserStats) => s.blogsCompleted >= 1 
+  },
+  { 
+    id: 'blog-5', 
+    title: 'Community Voice', 
+    description: 'Publish 5 blog posts.', 
+    icon: Globe, 
+    xpReward: 400, 
+    condition: (s: UserStats) => s.blogsCompleted >= 5 
+  },
+
+  // --- MILESTONES ---
   { 
     id: 'level-5', 
     title: 'Halfway Hero', 
@@ -898,5 +991,6 @@ export const INITIAL_STATS: UserStats = {
   projectsCompleted: 0,
   labsCompleted: 0,
   quizzesCompleted: 0,
+  blogsCompleted: 0,
   certificationsEarned: 0
 };

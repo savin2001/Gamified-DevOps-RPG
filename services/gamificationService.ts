@@ -195,10 +195,11 @@ export const logActivity = (type: ActivityType, description: string, weekId?: nu
     lastActivityDate: new Date().toISOString(),
     sessionsCompleted: stats.sessionsCompleted + (type === ActivityType.STUDY_SESSION ? 1 : 0),
     totalStudyHours: stats.totalStudyHours + (type === ActivityType.STUDY_SESSION ? 1.5 : (type === ActivityType.LAB_SESSION ? 3.0 : 0)),
-    // Fix: Explicitly track projects, labs, quizzes
+    // Fix: Explicitly track projects, labs, quizzes, blogs
     labsCompleted: (stats.labsCompleted || 0) + (type === ActivityType.LAB_SESSION ? 1 : 0),
     projectsCompleted: (stats.projectsCompleted || 0) + (type === ActivityType.PROJECT_WORK ? 1 : 0),
     quizzesCompleted: (stats.quizzesCompleted || 0) + (type === ActivityType.QUIZ_COMPLETION ? 1 : 0),
+    blogsCompleted: (stats.blogsCompleted || 0) + (type === ActivityType.BLOG_POST ? 1 : 0),
   };
 
   const log: ActivityLog = {

@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { LAB_DATA } from '../constants';
 import { getCompletedLabs, logActivity, saveLabCompletion, getLabSubmissions, saveLabSubmission, getStudySessionsForWeek } from '../services/gamificationService';
 import { ActivityType } from '../types';
-import { Lock, Unlock, Beaker, CheckCircle2, Terminal, Eye, BookOpen, AlertCircle, Play, Save, History } from 'lucide-react';
+import { Lock, Unlock, Beaker, CheckCircle2, Terminal, Eye, BookOpen, AlertCircle, Play, Save, History, Loader2, XCircle } from 'lucide-react';
 import SuccessModal from './SuccessModal';
 import FocusTimer, { FocusTimerHandle } from './FocusTimer';
 
@@ -18,6 +18,9 @@ const LabHub: React.FC<LabHubProps> = ({ onActivityLogged }) => {
   const [output, setOutput] = useState('');
   const [isReviewMode, setIsReviewMode] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [isExecuting, setIsExecuting] = useState(false);
+  const [validationError, setValidationError] = useState<string | null>(null);
+  
   const timerRef = useRef<FocusTimerHandle>(null);
 
   useEffect(() => {
@@ -29,6 +32,7 @@ const LabHub: React.FC<LabHubProps> = ({ onActivityLogged }) => {
     if (activeLabId) {
         timerRef.current?.reset();
         timerRef.current?.start();
+        setValidationError(null); // Clear errors on new lab open
     } else {
         timerRef.current?.pause();
     }
@@ -45,8 +49,29 @@ const LabHub: React.FC<LabHubProps> = ({ onActivityLogged }) => {
     }
   }, [activeLabId]);
 
-  const handleCompleteLab = (labId: string, weekId: number) => {
+  const handleCompleteLab = async (labId: string, weekId: number) => {
     if (isReviewMode) return;
+    
+    setIsExecuting(true);
+    setValidationError(null);
+
+    // Find the lab definition
+    const lab = Object.values(LAB_DATA).find(l => l.id === labId);
+    
+    // Simulate Verification Delay
+    await new Promise(resolve => setTimeout(resolve, 1500));
+
+    if (lab) {
+        const expected = (lab.expectedOutput || '').toLowerCase();
+        const userOutput = output.toLowerCase();
+
+        // Validation Logic: Check if output contains expected string
+        if (!userOutput.includes(expected)) {
+            setValidationError(`Verification Failed: Output mismatch.\nExpected to find: "${lab.expectedOutput}"`);
+            setIsExecuting(false);
+            return;
+        }
+    }
 
     saveLabCompletion(labId);
     saveLabSubmission(labId, output);
@@ -62,6 +87,7 @@ const LabHub: React.FC<LabHubProps> = ({ onActivityLogged }) => {
         setShowSuccessModal(true); 
     }
     
+    setIsExecuting(false);
     setActiveLabId(null);
     setOutput('');
   };
@@ -171,6 +197,7 @@ const LabHub: React.FC<LabHubProps> = ({ onActivityLogged }) => {
                                     if (!isReviewMode) handleSaveDraft(lab.id); 
                                     else setActiveLabId(null);
                                 }} 
+                                disabled={isExecuting}
                                 className="w-full text-xs text-slate-500 dark:text-gray-400 hover:text-navy-900 dark:hover:text-white transition-colors flex items-center justify-center gap-2"
                             >
                                 {isReviewMode ? '← Return to Hub' : '← Save Draft & Return'}
@@ -179,8 +206,8 @@ const LabHub: React.FC<LabHubProps> = ({ onActivityLogged }) => {
                     </div>
 
                     {/* Main / Terminal */}
-                    <div className="lg:w-2/3 flex flex-col bg-[#1e293b] relative"> {/* Slate 800 - Standard terminal color */}
-                         <div className="flex items-center justify-between p-3 bg-slate-900 border-b border-white/5">
+                    <div className="lg:w-2/3 flex flex-col bg-[#18181b] relative"> {/* Zinc 900 - Terminal Background */}
+                         <div className="flex items-center justify-between p-3 bg-zinc-900 border-b border-white/5">
                              <div className="flex gap-2">
                                  <div className="w-3 h-3 rounded-full bg-red-500/50"></div>
                                  <div className="w-3 h-3 rounded-full bg-yellow-500/50"></div>
@@ -194,22 +221,42 @@ const LabHub: React.FC<LabHubProps> = ({ onActivityLogged }) => {
                          <div className="flex-1 p-6 font-mono text-sm overflow-hidden flex flex-col text-slate-300">
                              <div className="mb-4 text-slate-400">
                                  # DevOps Quest Terminal v2.0<br/>
-                                 # Status: {isReviewMode ? 'READ_ONLY_MOUNT' : 'Awaiting Input'}
+                                 # Status: {isExecuting ? 'VERIFYING...' : isReviewMode ? 'READ_ONLY_MOUNT' : 'Awaiting Input'}
                              </div>
                              
-                             <div className={`flex-1 bg-black/30 border border-white/5 rounded-lg p-4 relative overflow-hidden`}>
+                             <div className={`flex-1 bg-black/30 border ${validationError ? 'border-red-500/30' : 'border-white/5'} rounded-lg p-4 relative overflow-hidden flex flex-col`}>
                                  <textarea 
-                                    readOnly={isReviewMode}
+                                    readOnly={isReviewMode || isExecuting}
                                     value={output}
-                                    onChange={(e) => setOutput(e.target.value)}
-                                    className={`w-full h-full bg-transparent ${isReviewMode ? 'text-slate-500 cursor-not-allowed' : 'text-brand-400'} focus:outline-none resize-none font-mono`}
+                                    onChange={(e) => {
+                                        setOutput(e.target.value);
+                                        if (validationError) setValidationError(null);
+                                    }}
+                                    className={`w-full h-full bg-transparent ${isReviewMode ? 'text-slate-500 cursor-not-allowed' : 'text-brand-400'} focus:outline-none resize-none font-mono disabled:opacity-50`}
                                     placeholder={isReviewMode ? "Terminal input disabled in Review Mode." : `$ ${lab.verificationCommand || "verify_lab"}\n\n# Paste expected output here:\n# ${lab.expectedOutput || "..."}`}
                                     autoFocus={!isReviewMode}
                                  />
+                                 {isExecuting && (
+                                     <div className="absolute inset-0 bg-black/50 flex items-center justify-center backdrop-blur-[1px]">
+                                         <div className="flex items-center gap-2 text-brand-400">
+                                             <Loader2 className="w-5 h-5 animate-spin" />
+                                             <span>Verifying Output Signature...</span>
+                                         </div>
+                                     </div>
+                                 )}
                              </div>
+                             
+                             {validationError && (
+                                 <div className="mt-2 p-3 bg-red-900/20 border border-red-500/30 text-red-400 rounded text-xs animate-in slide-in-from-top-1">
+                                     <div className="flex items-center gap-2 font-bold mb-1">
+                                         <XCircle className="w-3 h-3" /> Error
+                                     </div>
+                                     <pre className="whitespace-pre-wrap font-mono">{validationError}</pre>
+                                 </div>
+                             )}
                          </div>
 
-                         <div className="p-6 border-t border-white/10 bg-slate-900 flex justify-between items-center gap-4">
+                         <div className="p-6 border-t border-white/10 bg-zinc-900 flex justify-between items-center gap-4">
                              <div className="flex items-center gap-3">
                                  <span className={`text-xs ${output.length > 2 ? 'text-brand-400' : 'text-slate-500'}`}>
                                      {output.length > 2 ? '● Output Detected' : '○ Idle'}
@@ -225,17 +272,18 @@ const LabHub: React.FC<LabHubProps> = ({ onActivityLogged }) => {
                                     <>
                                         <button 
                                             onClick={() => handleSaveDraft(lab.id)}
-                                            className="px-4 py-3 rounded-lg border border-white/10 text-slate-400 hover:text-white hover:bg-white/5 text-xs font-bold transition-all flex items-center gap-2"
+                                            disabled={isExecuting}
+                                            className="px-4 py-3 rounded-lg border border-white/10 text-slate-400 hover:text-white hover:bg-white/5 text-xs font-bold transition-all flex items-center gap-2 disabled:opacity-50"
                                         >
                                             <Save className="w-4 h-4" /> Save
                                         </button>
                                         <button 
                                             onClick={() => handleCompleteLab(lab.id, lab.weekId)}
-                                            disabled={output.length < 2}
+                                            disabled={output.length < 2 || isExecuting}
                                             className="bg-brand-600 hover:bg-brand-500 disabled:opacity-50 disabled:grayscale text-white font-bold px-6 py-3 rounded-lg transition-all shadow-md flex items-center gap-2"
                                         >
-                                            <CheckCircle2 className="w-4 h-4" /> 
-                                            {isPreviouslyCompleted ? 'Update Verification' : 'Execute'}
+                                            {isExecuting ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
+                                            {isExecuting ? 'Verifying...' : isPreviouslyCompleted ? 'Update Verification' : 'Execute'}
                                         </button>
                                     </>
                                 )}

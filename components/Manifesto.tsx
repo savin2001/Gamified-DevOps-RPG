@@ -8,7 +8,7 @@ interface ManifestoProps {
 
 const Manifesto: React.FC<ManifestoProps> = ({ onBack }) => {
   return (
-    <div className="min-h-screen bg-[#030712] text-slate-200 font-sans selection:bg-navy-500/30 overflow-x-hidden">
+    <div className="min-h-screen bg-surface-dark text-slate-200 font-sans selection:bg-navy-500/30 overflow-x-hidden">
       {/* Background Effects */}
       <div className="fixed top-0 left-0 w-full h-full overflow-hidden pointer-events-none z-0">
           <div className="absolute top-[-10%] right-[-10%] w-[50%] h-[50%] bg-navy-900/10 rounded-full blur-[120px]"></div>

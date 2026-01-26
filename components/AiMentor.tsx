@@ -61,9 +61,9 @@ const AiMentor: React.FC<AiMentorProps> = ({ userStats }) => {
         <div className="fixed bottom-20 md:bottom-6 right-6 z-50 flex flex-col items-end gap-4 font-sans">
             {/* Chat Window */}
             {isOpen && (
-                <div className="bg-white dark:bg-devops-card border border-slate-200 dark:border-gray-700 shadow-2xl rounded-2xl w-[90vw] sm:w-[350px] md:w-[400px] h-[60vh] sm:h-[500px] flex flex-col overflow-hidden animate-in slide-in-from-bottom-10 fade-in duration-300 origin-bottom-right mb-2">
+                <div className="bg-white dark:bg-surface-cardDark border border-slate-200 dark:border-white/10 shadow-2xl rounded-2xl w-[90vw] sm:w-[350px] md:w-[400px] h-[60vh] sm:h-[500px] flex flex-col overflow-hidden animate-in slide-in-from-bottom-10 fade-in duration-300 origin-bottom-right mb-2">
                     {/* Header */}
-                    <div className="p-4 border-b border-slate-200 dark:border-gray-700 bg-slate-50/90 dark:bg-gray-800/80 backdrop-blur-sm flex justify-between items-center">
+                    <div className="p-4 border-b border-slate-200 dark:border-white/10 bg-slate-50/90 dark:bg-black/40 backdrop-blur-sm flex justify-between items-center">
                         <div className="flex items-center gap-2">
                             <div className="p-1.5 bg-emerald-100 dark:bg-emerald-500/20 rounded-lg">
                                 <Bot className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
@@ -81,14 +81,14 @@ const AiMentor: React.FC<AiMentorProps> = ({ userStats }) => {
                                 <button 
                                     onClick={handleGetMotivation}
                                     title="Get Hype"
-                                    className="p-2 hover:bg-slate-200 dark:hover:bg-gray-700 rounded-lg text-yellow-500 dark:text-yellow-400 transition-colors"
+                                    className="p-2 hover:bg-slate-200 dark:hover:bg-white/10 rounded-lg text-yellow-500 dark:text-yellow-400 transition-colors"
                                 >
                                     <Sparkles className="w-4 h-4" />
                                 </button>
                              )}
                             <button 
                                 onClick={() => setIsOpen(false)}
-                                className="p-2 hover:bg-slate-200 dark:hover:bg-gray-700 rounded-lg text-slate-500 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white transition-colors"
+                                className="p-2 hover:bg-slate-200 dark:hover:bg-white/10 rounded-lg text-slate-500 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white transition-colors"
                             >
                                 <X className="w-4 h-4" />
                             </button>
@@ -96,13 +96,13 @@ const AiMentor: React.FC<AiMentorProps> = ({ userStats }) => {
                     </div>
 
                     {/* Messages */}
-                    <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-slate-50 dark:bg-gray-900/50">
+                    <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-white dark:bg-black/20">
                         {messages.map((msg) => (
                             <div key={msg.id} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                                 <div className={`max-w-[85%] rounded-2xl p-3 text-sm leading-relaxed shadow-sm ${
                                     msg.role === 'user' 
                                         ? 'bg-blue-600 text-white rounded-br-sm' 
-                                        : 'bg-white dark:bg-gray-700 text-slate-800 dark:text-gray-100 rounded-bl-sm border border-slate-200 dark:border-gray-600'
+                                        : 'bg-slate-100 dark:bg-white/10 text-slate-800 dark:text-gray-100 rounded-bl-sm border border-slate-200 dark:border-white/5'
                                 }`}>
                                     <ReactMarkdown 
                                         components={{
@@ -111,7 +111,7 @@ const AiMentor: React.FC<AiMentorProps> = ({ userStats }) => {
                                             ul: ({node, ...props}) => <ul className="list-disc list-inside mb-2 space-y-1" {...props} />,
                                             ol: ({node, ...props}) => <ol className="list-decimal list-inside mb-2 space-y-1" {...props} />,
                                             li: ({node, ...props}) => <li className="ml-1" {...props} />,
-                                            code: ({node, ...props}) => <code className={`rounded px-1 py-0.5 font-mono text-xs border ${msg.role === 'user' ? 'bg-blue-700 text-blue-100 border-blue-500' : 'bg-slate-100 dark:bg-black/30 text-emerald-600 dark:text-green-300 border-slate-200 dark:border-white/10'}`} {...props} />,
+                                            code: ({node, ...props}) => <code className={`rounded px-1 py-0.5 font-mono text-xs border ${msg.role === 'user' ? 'bg-blue-700 text-blue-100 border-blue-500' : 'bg-white dark:bg-black/30 text-emerald-600 dark:text-green-300 border-slate-200 dark:border-white/10'}`} {...props} />,
                                             pre: ({node, ...props}) => <pre className="bg-slate-900 dark:bg-black/50 p-2 rounded-lg my-2 overflow-x-auto border border-slate-700 dark:border-gray-600 text-white" {...props} />,
                                         }}
                                     >
@@ -122,7 +122,7 @@ const AiMentor: React.FC<AiMentorProps> = ({ userStats }) => {
                         ))}
                         {isLoading && (
                             <div className="flex justify-start">
-                                <div className="bg-white dark:bg-gray-700 rounded-2xl rounded-bl-sm p-3 border border-slate-200 dark:border-gray-600 shadow-sm">
+                                <div className="bg-slate-100 dark:bg-white/10 rounded-2xl rounded-bl-sm p-3 border border-slate-200 dark:border-white/5 shadow-sm">
                                     <div className="flex gap-1.5">
                                         <span className="w-1.5 h-1.5 bg-slate-400 dark:bg-gray-400 rounded-full animate-bounce"></span>
                                         <span className="w-1.5 h-1.5 bg-slate-400 dark:bg-gray-400 rounded-full animate-bounce delay-100"></span>
@@ -135,14 +135,14 @@ const AiMentor: React.FC<AiMentorProps> = ({ userStats }) => {
                     </div>
 
                     {/* Input */}
-                    <form onSubmit={handleSend} className="p-3 bg-white dark:bg-gray-800/50 border-t border-slate-200 dark:border-gray-700">
+                    <form onSubmit={handleSend} className="p-3 bg-white dark:bg-surface-cardDark border-t border-slate-200 dark:border-white/10">
                         <div className="flex gap-2 relative">
                             <input
                                 type="text"
                                 value={input}
                                 onChange={(e) => setInput(e.target.value)}
                                 placeholder="Ask about Cloud & DevOps..."
-                                className="flex-1 bg-slate-100 dark:bg-gray-900 border border-slate-300 dark:border-gray-600 rounded-xl px-4 py-3 text-slate-900 dark:text-white text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all pr-10 placeholder:text-slate-400 dark:placeholder:text-gray-500"
+                                className="flex-1 bg-slate-100 dark:bg-black/20 border border-slate-300 dark:border-white/10 rounded-xl px-4 py-3 text-slate-900 dark:text-white text-sm focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all pr-10 placeholder:text-slate-400 dark:placeholder:text-gray-500"
                             />
                             <button 
                                 type="submit" 

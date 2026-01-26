@@ -45,49 +45,51 @@ const ActivityLogger: React.FC<ActivityLoggerProps> = ({ onLog }) => {
   ];
 
   return (
-    <div className="bg-devops-card rounded-xl border border-gray-700 shadow-lg p-6">
-      <h3 className="text-xl font-bold text-white mb-4">Log Progress</h3>
+    <div className="bg-white dark:bg-surface-cardDark rounded-2xl border border-slate-200 dark:border-white/10 shadow-sm p-6">
+      <h3 className="text-xl font-bold text-navy-900 dark:text-white mb-4">Log Progress</h3>
       
       <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
         {buttons.map((btn) => (
           <button
             key={btn.type}
             onClick={() => setSelectedType(btn.type)}
-            className={`flex flex-col items-center justify-center p-3 rounded-lg transition-all ${
-              selectedType === btn.type ? `${btn.color} ring-2 ring-white` : 'bg-gray-800 hover:bg-gray-750 text-gray-400'
+            className={`flex flex-col items-center justify-center p-3 rounded-xl transition-all ${
+              selectedType === btn.type 
+                ? `${btn.color} text-white shadow-md ring-2 ring-offset-2 ring-offset-white dark:ring-offset-black ring-brand-500` 
+                : 'bg-slate-100 dark:bg-white/5 text-slate-500 dark:text-gray-400 hover:bg-slate-200 dark:hover:bg-white/10'
             }`}
           >
             <btn.icon className="w-6 h-6 mb-2" />
-            <span className="text-xs font-medium text-center">{btn.label}</span>
-            <span className="text-[10px] opacity-75 mt-1">+{XP_VALUES[btn.type]} XP</span>
+            <span className="text-xs font-bold text-center">{btn.label}</span>
+            <span className="text-[10px] opacity-75 mt-1 font-mono">+{XP_VALUES[btn.type]} XP</span>
           </button>
         ))}
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-sm font-medium text-gray-400 mb-2">
+          <label className="block text-xs font-bold text-slate-500 dark:text-gray-400 uppercase tracking-wider mb-2">
             {selectedType === ActivityType.GITHUB_COMMIT ? 'Paste Commit URL or Message' : 'What did you learn today?'}
           </label>
           <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            className="w-full bg-gray-900 border border-gray-700 rounded-lg p-3 text-white focus:ring-2 focus:ring-devops-accent focus:outline-none h-24 resize-none"
+            className="w-full bg-slate-50 dark:bg-black/20 border border-slate-200 dark:border-white/10 rounded-xl p-4 text-slate-900 dark:text-white focus:ring-1 focus:ring-brand-500 focus:border-brand-500 focus:outline-none h-24 resize-none transition-all placeholder:text-slate-400 dark:placeholder:text-gray-600"
             placeholder={selectedType === ActivityType.GITHUB_COMMIT ? "fix: updated VPC security groups..." : "Learned about AWS Lambda triggers and layers..."}
             required
           />
         </div>
 
         <div className="flex items-center justify-between">
-            <span className={`text-sm ${verificationResult?.startsWith('❌') ? 'text-red-400' : 'text-green-400'}`}>
+            <span className={`text-sm font-medium ${verificationResult?.startsWith('❌') ? 'text-red-500' : 'text-emerald-500'}`}>
                 {verificationResult}
             </span>
             <button
                 type="submit"
                 disabled={isVerifying || !description}
-                className="bg-devops-accent text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+                className="bg-brand-600 hover:bg-brand-700 text-white px-8 py-3 rounded-xl font-bold transition-all shadow-md disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
             >
-                {isVerifying && <Loader2 className="animate-spin w-4 h-4 mr-2" />}
+                {isVerifying && <Loader2 className="animate-spin w-4 h-4" />}
                 {selectedType === ActivityType.GITHUB_COMMIT ? 'Verify & Log' : 'Claim XP'}
             </button>
         </div>

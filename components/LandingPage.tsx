@@ -21,6 +21,7 @@ const PREVIEW_STATS: UserStats = {
     projectsCompleted: 3,
     labsCompleted: 24,
     quizzesCompleted: 12,
+    blogsCompleted: 4,
     certificationsEarned: 1
 };
 
@@ -296,3 +297,4 @@ const FeatureCard = ({ isDark, icon: Icon, color, title, desc }: any) => {
 };
 
 export default LandingPage;
+    

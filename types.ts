@@ -19,6 +19,7 @@ export interface UserStats {
   projectsCompleted: number;
   labsCompleted: number;
   quizzesCompleted: number;
+  blogsCompleted: number;
   certificationsEarned: number;
 }
 

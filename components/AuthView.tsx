@@ -107,10 +107,10 @@ const AuthView: React.FC<AuthViewProps> = ({ onLogin, onBack, isDark = true }) =
     };
 
     return (
-        <div className={`min-h-screen flex items-center justify-center p-4 relative overflow-hidden transition-colors duration-500 ${isDark ? 'bg-[#020617] dark' : 'bg-slate-50'}`}>
+        <div className={`min-h-screen flex items-center justify-center p-4 relative overflow-hidden transition-colors duration-500 ${isDark ? 'bg-surface-dark dark' : 'bg-surface-light'}`}>
              {/* Background Effects */}
-            <div className={`absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full blur-[120px] pointer-events-none ${isDark ? 'bg-blue-900/10' : 'bg-blue-200/40'}`}></div>
-            <div className={`absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full blur-[120px] pointer-events-none ${isDark ? 'bg-emerald-900/10' : 'bg-emerald-200/40'}`}></div>
+            <div className={`absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full blur-[120px] pointer-events-none ${isDark ? 'bg-navy-900/10' : 'bg-blue-200/40'}`}></div>
+            <div className={`absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full blur-[120px] pointer-events-none ${isDark ? 'bg-brand-900/10' : 'bg-emerald-200/40'}`}></div>
             
             <button 
                 onClick={onBack}
@@ -120,7 +120,7 @@ const AuthView: React.FC<AuthViewProps> = ({ onLogin, onBack, isDark = true }) =
                 <ArrowLeft className="w-6 h-6 group-hover:-translate-x-1 transition-transform" />
             </button>
 
-            <div className={`max-w-md w-full border rounded-3xl p-8 shadow-2xl relative z-10 animate-in zoom-in-95 duration-500 ${isDark ? 'bg-[#0f172a] border-white/10 shadow-black/50' : 'bg-white border-slate-200 shadow-slate-200/50'}`}>
+            <div className={`max-w-md w-full border rounded-3xl p-8 shadow-2xl relative z-10 animate-in zoom-in-95 duration-500 ${isDark ? 'bg-surface-cardDark border-white/10 shadow-black/50' : 'bg-white border-slate-200 shadow-slate-200/50'}`}>
                 <div className="text-center mb-8">
                     <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-600 to-teal-700 mb-4 shadow-lg shadow-emerald-900/20">
                         <Rocket className="w-8 h-8 text-white" />

@@ -185,7 +185,7 @@ const ProjectHub: React.FC<ProjectHubProps> = ({ onActivityLogged }) => {
                     </div>
 
                     {/* Main / Terminal */}
-                    <div className="lg:w-2/3 flex flex-col bg-[#0f172a] relative"> {/* Navy 950 - Standard terminal color */}
+                    <div className="lg:w-2/3 flex flex-col bg-surface-cardDark relative">
                          <div className="flex items-center justify-between p-3 bg-white/5 border-b border-white/5">
                              <div className="flex gap-2">
                                  <div className="w-3 h-3 rounded-full bg-red-500/20"></div>
